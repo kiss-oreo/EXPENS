@@ -89,9 +89,6 @@ class SmsIngestService {
         : await db.accountByLast4(parsed.accountLast4!);
     final unassigned = matched == null;
     final accountId = matched?.id ?? await store.unassignedAccountId();
-    if (accountId == null) {
-      return SmsIngestResult(outcome: outcome);
-    }
 
     int? categoryId;
     int? merchantId;
@@ -150,7 +147,6 @@ class SmsIngestService {
     final hint = row.read<String?>('account_hint');
     final matched = hint == null ? null : await db.accountByLast4(hint);
     final accountId = matched?.id ?? await store.unassignedAccountId();
-    if (accountId == null) return null;
     final direction = row.read<String?>('direction');
     final type = direction == 'credit' ? TxType.income : TxType.expense;
     final merchant = row.read<String?>('merchant');
