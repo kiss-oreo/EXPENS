@@ -152,11 +152,12 @@ jobs:
       - name: Test
         run: |
           set +e
-          flutter test > /tmp/test.log 2>&1
+          flutter test --reporter json > /tmp/test.jsonl 2> /tmp/test.stderr
           code=$?
-          cat /tmp/test.log
+          python3 tool/extract_test_failures.py /tmp/test.jsonl /tmp/test-failures.txt
+          cat /tmp/test-failures.txt
           if [ "$code" -ne 0 ]; then
-            bash tool/annotate_log.sh /tmp/test.log
+            bash tool/annotate_log.sh /tmp/test-failures.txt
           fi
           exit "$code"
 
@@ -166,7 +167,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set +e
-          for f in /tmp/analyze.log /tmp/apk-build.log /tmp/test.log; do
+          for f in /tmp/test-failures.txt /tmp/analyze.log /tmp/apk-build.log /tmp/test.log; do
             if [ -f "$f" ]; then
               bash tool/annotate_log.sh "$f"
               {
@@ -183,7 +184,7 @@ jobs:
           import json, os
           from pathlib import Path
           chunks = []
-          for name in ("analyze.log", "apk-build.log", "test.log"):
+          for name in ("test-failures.txt", "analyze.log", "apk-build.log", "test.log"):
               path = Path("/tmp") / name
               if path.exists():
                   chunks.append(f"## {name}\n" + path.read_text(errors="replace")[-20000:])
