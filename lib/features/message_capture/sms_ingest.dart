@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 
 import '../../core/money.dart';
 import '../../data/database.dart';
-import '../../data/ledger_extensions.dart';
 import '../../data/tables.dart';
 import '../merchants/merchant_store.dart';
 import 'parser/sms/sms_capture_parser.dart';

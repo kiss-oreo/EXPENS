@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 
 import '../../data/database.dart';
-import '../../data/tables.dart';
 import '../merchants/merchant_store.dart';
 import 'export_format.dart';
 

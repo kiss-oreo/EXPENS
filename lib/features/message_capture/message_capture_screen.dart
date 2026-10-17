@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../core/branding/app_info.dart';
 import '../../core/widgets/app_surfaces.dart';
 import '../../core/widgets/nav_bar_inset.dart';
-import '../../data/database.dart';
 import '../../data/ledger_extensions.dart';
 import '../../data/providers.dart';
 import 'sms_capture_bridge.dart';

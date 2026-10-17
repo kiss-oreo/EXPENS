@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/widgets/app_surfaces.dart';
-import '../../data/tables.dart';
+import '../../data/database.dart';
 
 /// Picks one category, including subcategories under their parent.
 /// Returns the category id, or null if the sheet is dismissed.

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/widgets/app_surfaces.dart';
 import '../../core/widgets/nav_bar_inset.dart';
+import '../../data/database.dart';
 import '../../data/providers.dart';
 import '../../data/tables.dart';
 import 'category_pick_sheet.dart';

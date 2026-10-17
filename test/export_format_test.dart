@@ -56,7 +56,7 @@ void main() {
   test('filters by date, account, category and type', () {
     final filtered = rows
         .where(
-          (row) => const ExportFilter(
+          (row) => ExportFilter(
             start: DateTime(2026, 10, 1),
             account: 'HDFC',
             type: 'Expense',

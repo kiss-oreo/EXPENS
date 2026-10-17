@@ -2,7 +2,6 @@
 ///
 /// Money is integer paise. Callers format with integer division, never
 /// `double`.
-
 enum SmsDirection { debit, credit }
 
 enum SmsIgnoreReason {

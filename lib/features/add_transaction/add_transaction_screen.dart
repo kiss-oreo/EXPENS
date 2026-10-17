@@ -19,6 +19,7 @@ import '../../data/database.dart';
 import '../../data/providers.dart';
 import '../../data/tables.dart';
 import '../accounts/envelope_outflow.dart';
+import '../merchants/merchant_store.dart';
 import '../payees/payee_picker_sheet.dart';
 import '../persons/person_avatar.dart';
 import '../settings/currency_picker_sheet.dart';
