@@ -43,7 +43,7 @@ void main() {
     final b = SmsDedupe.key(
       amountPaise: 25050,
       accountLast4: '1234',
-      receivedAt: at.add(const Duration(seconds: 20)),
+      receivedAt: at.add(const Duration(seconds: 10)),
       payee: 'swiggy',
     );
     final otherMinute = SmsDedupe.key(

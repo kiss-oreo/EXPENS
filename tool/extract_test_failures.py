@@ -27,7 +27,7 @@ def main() -> None:
             kind = event.get("type")
             if kind == "testStart":
                 test = event.get("test") or {}
-                names[event.get("testID")] = test.get("name") or test.get("url")
+                names[test.get("id")] = test.get("name") or test.get("url")
             elif kind == "error":
                 test_id = event.get("testID")
                 message = event.get("error") or event.get("message") or ""

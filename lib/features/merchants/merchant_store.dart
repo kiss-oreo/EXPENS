@@ -504,12 +504,13 @@ class MerchantStore {
     };
   }
 
-  Future<int?> unassignedAccountId() async {
+  Future<int> unassignedAccountId() async {
+    await ensureUnassignedAccount(db);
     final row = await db.customSelect(
       'SELECT id FROM accounts WHERE name = ? LIMIT 1',
       variables: [Variable.withString(unassignedAccountName)],
-    ).getSingleOrNull();
-    return row?.read<int>('id');
+    ).getSingle();
+    return row.read<int>('id');
   }
 
   Future<bool> dedupeSeen(String key) async {

@@ -105,34 +105,13 @@ Future<void> ensureLedgerExtensions(GeneratedDatabase db) async {
     )
   ''');
 
-  await _seedCategory(db, 'Other', 'expense', 0xFF64748B, 'other', 90);
-  await _seedCategory(db, 'Transfers', 'expense', 0xFF78716C, 'transfer', 91);
-  await _seedUnassigned(db);
   await _seedSenderHeaders(db);
 }
 
-Future<void> _seedCategory(
-  GeneratedDatabase db,
-  String name,
-  String kind,
-  int color,
-  String icon,
-  int sort,
-) async {
-  await db.customStatement(
-    '''
-    INSERT INTO categories (name, kind, color_value, icon_key, is_archived, sort_order)
-    SELECT ?, ?, ?, ?, 0, ?
-    WHERE NOT EXISTS (
-      SELECT 1 FROM categories
-      WHERE name = ? AND kind = ? AND parent_id IS NULL
-    )
-    ''',
-    [name, kind, color, icon, sort, name, kind],
-  );
-}
-
-Future<void> _seedUnassigned(GeneratedDatabase db) async {
+/// Holding account for an SMS that names no known account. Created only when
+/// a message needs it, so a fresh ledger stays the single Cash account tests
+/// and a new install expect.
+Future<void> ensureUnassignedAccount(GeneratedDatabase db) async {
   await db.customStatement(
     '''
     INSERT INTO accounts (
