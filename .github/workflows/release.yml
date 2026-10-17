@@ -20,7 +20,7 @@ on:
 
 permissions:
   contents: write
-  issues: write
+  checks: write
 
 jobs:
   release:
@@ -101,6 +101,17 @@ jobs:
       - name: Pub get
         run: flutter pub get --enforce-lockfile
 
+      - name: Analyze
+        run: |
+          set +e
+          flutter analyze > /tmp/analyze.log 2>&1
+          code=$?
+          cat /tmp/analyze.log
+          if [ "$code" -ne 0 ]; then
+            bash tool/annotate_log.sh /tmp/analyze.log
+          fi
+          exit "$code"
+
       - name: Build release APKs
         run: |
           set +e
@@ -109,6 +120,7 @@ jobs:
           code=$?
           cat /tmp/apk-build.log
           if [ "$code" -ne 0 ]; then
+            bash tool/annotate_log.sh /tmp/apk-build.log
             exit "$code"
           fi
           # Copy before the split build. A later Gradle invocation can clear
@@ -137,20 +149,15 @@ jobs:
             bash tool/verify_apk.sh "$apk"
           done
 
-      - name: Analyze
-        run: |
-          set +e
-          flutter analyze > /tmp/analyze.log 2>&1
-          code=$?
-          cat /tmp/analyze.log
-          exit "$code"
-
       - name: Test
         run: |
           set +e
           flutter test > /tmp/test.log 2>&1
           code=$?
           cat /tmp/test.log
+          if [ "$code" -ne 0 ]; then
+            bash tool/annotate_log.sh /tmp/test.log
+          fi
           exit "$code"
 
       - name: Publish failure log
@@ -158,26 +165,43 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          {
-            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-            echo
-            if [ -f /tmp/signing-mode.txt ]; then
-              echo "Signing mode: $(cat /tmp/signing-mode.txt)"
-              echo
-            fi
-            for f in /tmp/apk-build.log /tmp/analyze.log /tmp/test.log; do
-              if [ -f "$f" ]; then
+          set +e
+          for f in /tmp/analyze.log /tmp/apk-build.log /tmp/test.log; do
+            if [ -f "$f" ]; then
+              bash tool/annotate_log.sh "$f"
+              {
                 echo "## $f"
                 echo '```text'
-                tail -n 180 "$f" | sed 's/```/` ` `/g'
+                tail -n 120 "$f"
                 echo '```'
-                echo
-              fi
-            done
-          } > /tmp/issue.md
-          python3 -c 'from pathlib import Path; p=Path("/tmp/issue.md"); t=p.read_text(errors="replace"); p.write_text(t[:60000]+("\n...truncated" if len(t)>60000 else ""))'
-          gh issue create --title "Release job failed ${GITHUB_RUN_ID}" --body-file /tmp/issue.md
-          cat /tmp/issue.md >> "$GITHUB_STEP_SUMMARY"
+              } >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
+          # Issues are disabled on this repo. A check-run body is readable
+          # through the API when the token can write checks.
+          python3 - << 'PY'
+          import json, os
+          from pathlib import Path
+          chunks = []
+          for name in ("analyze.log", "apk-build.log", "test.log"):
+              path = Path("/tmp") / name
+              if path.exists():
+                  chunks.append(f"## {name}\n" + path.read_text(errors="replace")[-20000:])
+          text = "\n".join(chunks)[:60000]
+          Path("/tmp/check.json").write_text(json.dumps({
+              "name": "APK build log",
+              "head_sha": os.environ["GITHUB_SHA"],
+              "status": "completed",
+              "conclusion": "failure",
+              "output": {
+                  "title": "Release job log",
+                  "summary": text[:5000] or "no log",
+                  "text": text or "no log",
+              },
+          }))
+          PY
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/check-runs" --input /tmp/check.json || true
+          exit 0
 
       - name: Checksums
         working-directory: release
