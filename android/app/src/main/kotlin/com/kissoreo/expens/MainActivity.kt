@@ -15,7 +15,7 @@ private const val SCREEN_SECURITY_CHANNEL = "xpenc/screen_security"
  * SMS capture — paused, not deleted
  * ---------------------------------
  * This activity used to expose a `money_manager/sms` MethodChannel that read
- * the SMS inbox (READ_SMS) so bank messages could be parsed into review cards.
+ * the SMS inbox so bank messages could be parsed into review cards.
  * Google Play Protect blocks direct-download APKs that request SMS permissions
  * — users had to pause Play Protect just to install the app — so the
  * permission and the channel were removed in 1.1.0.

@@ -24,7 +24,7 @@ class CaptureCategoryScreen extends ConsumerStatefulWidget {
 }
 
 class _CaptureCategoryScreenState extends ConsumerState<CaptureCategoryScreen> {
-  bool _applyAll = true;
+  bool _applyAll = false;
   bool _busy = false;
 
   @override

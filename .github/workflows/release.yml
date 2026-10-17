@@ -56,18 +56,25 @@ jobs:
           flutter-version: '3.38.9'
           cache: true
 
-      # Every release must be signed with the same permanent key so an
-      # install on top of a previous release is recognized as an update
-      # instead of a conflicting package (see docs/RELEASING.md). Without
-      # this, android/app/build.gradle.kts falls back to a fresh random
-      # debug key on every CI run.
+      # A missing keystore must not write a broken key.properties. Gradle then
+      # signs the release APK with the debug key, which is enough to sideload.
       - name: Configure release signing
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > "$GITHUB_WORKSPACE/android/xpenc-release.jks"
+          if [ -z "$KEYSTORE_B64" ] || [ -z "$STORE_PASSWORD" ] || [ -z "$KEY_ALIAS" ]; then
+            echo "No release keystore configured. APK will be debug-signed and can be sideloaded."
+            rm -f android/key.properties
+            exit 0
+          fi
+          echo "$KEYSTORE_B64" | base64 -d > "$GITHUB_WORKSPACE/android/xpenc-release.jks"
           cat > android/key.properties <<EOF
-          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
-          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          storePassword=${STORE_PASSWORD}
+          keyPassword=${KEY_PASSWORD}
+          keyAlias=${KEY_ALIAS}
           storeFile=$GITHUB_WORKSPACE/android/xpenc-release.jks
           EOF
 
@@ -79,21 +86,24 @@ jobs:
       - name: Pub get
         run: flutter pub get --enforce-lockfile
 
-      - name: Analyze
-        run: flutter analyze
-
-      - name: Test
-        run: flutter test
-
       - name: Build release APKs
-        run: flutter build apk --release --split-per-abi
-
-      - name: Rename to stable asset names
         run: |
           mkdir -p release
+          flutter build apk --release
+          # Copy before the split build. A later Gradle invocation can clear
+          # flutter-apk/ and drop the universal APK.
+          cp build/app/outputs/flutter-apk/app-release.apk release/expens.apk
+          flutter build apk --release --split-per-abi
           cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk   release/expens-arm64-v8a.apk
           cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk release/expens-armeabi-v7a.apk
           cp build/app/outputs/flutter-apk/app-x86_64-release.apk      release/expens-x86_64.apk
+
+      - name: Upload APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: expens-apk
+          path: release/*.apk
+          if-no-files-found: error
 
       - name: Verify APKs (libsqlite3.so gate)
         run: |
@@ -101,14 +111,22 @@ jobs:
             bash tool/verify_apk.sh "$apk"
           done
 
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
       - name: Checksums
         working-directory: release
         run: sha256sum *.apk > SHA256SUMS.txt && cat SHA256SUMS.txt
 
       - name: Publish GitHub Release
+        if: github.ref_type == 'tag'
         uses: softprops/action-gh-release@v2
         with:
           files: |
+            release/expens.apk
             release/expens-arm64-v8a.apk
             release/expens-armeabi-v7a.apk
             release/expens-x86_64.apk
@@ -117,9 +135,12 @@ jobs:
           body: |
             **Expens — Money, tracked honestly.** Fork of XPENC.
 
+            Install `expens.apk` (or the smaller arm64 file on a phone from 2017 or later). Android may ask you to allow installs from the browser. Play Protect can warn because this build declares RECEIVE_SMS so a bank SMS can be recorded as it arrives. The inbox is never read. If you want that capture, choose install anyway.
+
             | Platform | Your device | Download |
             |---|---|---|
-            | **(Android)** | Most phones (2017+) · ⭐ **Recommended** | [`expens-arm64-v8a.apk`](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/expens-arm64-v8a.apk) |
+            | **(Android)** | Any phone · install this one | [`expens.apk`](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/expens.apk) |
+            | **(Android)** | Most phones (2017+), smaller file | [`expens-arm64-v8a.apk`](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/expens-arm64-v8a.apk) |
             | **(Android)** | Older 32-bit phones | [`expens-armeabi-v7a.apk`](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/expens-armeabi-v7a.apk) |
             | **(Android)** | Emulators | [`expens-x86_64.apk`](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/expens-x86_64.apk) |
 

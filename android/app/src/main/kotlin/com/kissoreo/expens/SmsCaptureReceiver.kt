@@ -12,7 +12,7 @@ import android.telephony.SmsMessage
 
 /**
  * Manifest receiver for SMS_RECEIVED. Only the PDU in this intent is read.
- * The inbox content provider is never queried. READ_SMS is never requested.
+ * The inbox content provider is never queried. The inbox permission is never requested.
  */
 class SmsCaptureReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {

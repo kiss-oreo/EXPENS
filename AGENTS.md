@@ -68,4 +68,6 @@ instruments and must not add a second balance.
 `flutter analyze` and `flutter test` are the gate. This environment may not
 have Flutter installed; do not claim they passed unless they were run.
 CI is `.github/workflows/ci.yml` (analyze + test) and `release.yml`
-(signed-ready release APK when the keystore secrets are present).
+(release APK). `tool/verify_apk.sh` requires `RECEIVE_SMS` and rejects
+`READ_SMS` and `INTERNET`. An empty keystore secret must not write
+`android/key.properties`; Gradle then debug-signs a sideloadable APK.

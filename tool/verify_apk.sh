@@ -70,14 +70,14 @@ if command -v aapt2 >/dev/null 2>&1 || command -v aapt >/dev/null 2>&1; then
   AAPT=$(command -v aapt2 || command -v aapt)
   perms=$("$AAPT" dump permissions "$APK" 2>/dev/null || true)
   if grep -q 'android.permission.READ_SMS' <<<"$perms"; then
-    bad "READ_SMS declared -- paused in 1.1.0: Play Protect blocks sideloads and Play rejects it"
+    bad "READ_SMS declared -- the inbox must never be readable"
   else
-    ok "READ_SMS absent (as designed since 1.1.0)"
+    ok "READ_SMS absent"
   fi
   if grep -q 'android.permission.RECEIVE_SMS' <<<"$perms"; then
-    bad "RECEIVE_SMS declared -- we deliberately do not use a broadcast receiver"
+    ok "RECEIVE_SMS present (incoming SMS only)"
   else
-    ok "RECEIVE_SMS absent (as designed)"
+    bad "RECEIVE_SMS missing -- capture cannot hear the message that just arrived"
   fi
   if grep -q 'android.permission.INTERNET' <<<"$perms"; then
     bad "INTERNET declared -- PRIVACY.md promises release builds request no internet permission (GitHub #59)"
