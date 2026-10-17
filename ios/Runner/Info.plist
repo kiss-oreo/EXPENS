@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>XPENC</string>
+	<string>Expens</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>xpenc</string>
+	<string>Expens</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -29,7 +29,7 @@
 	<key>NSContactsUsageDescription</key>
 	<string>Import a phone number and photo when you pick a person from your contacts.</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>Unlock XPENC with Face ID.</string>
+	<string>Unlock Expens with Face ID.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Attach a receipt photo from your library.</string>
 	<key>UILaunchStoryboardName</key>

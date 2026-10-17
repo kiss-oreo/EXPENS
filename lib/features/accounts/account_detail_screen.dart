@@ -358,7 +358,7 @@ class _HeaderCard extends ConsumerWidget {
   /// account actually holds and the difference is posted as one
   /// "Correction" transaction dated today (see
   /// [AppDatabase.correctAccountBalance]) — no fake spend, history left
-  /// alone, and it counts against the XPENC Score's Tracking habit.
+  /// alone, and it counts against the Expens Score's Tracking habit.
   Future<void> _correctBalance(BuildContext context, WidgetRef ref) async {
     final label = _entersAsOwed ? 'Actual outstanding' : 'Actual balance';
     final shown = _entersAsOwed
@@ -389,7 +389,7 @@ class _HeaderCard extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'XPENC shows ${_fmt(shown)}${_entersAsOwed ? ' owed' : ''}. '
+                  'Expens shows ${_fmt(shown)}${_entersAsOwed ? ' owed' : ''}. '
                   'Enter what ${_entersAsOwed ? 'you really owe' : 'you really have'} '
                   'and the difference is recorded as a Correction.',
                 ),
@@ -441,7 +441,7 @@ class _HeaderCard extends ConsumerWidget {
                 const SizedBox(height: 8),
                 Text(
                   'Corrections are never counted as income or spending, but '
-                  'they lower your XPENC Score\'s Tracking habit — logging as '
+                  'they lower your Expens Score\'s Tracking habit — logging as '
                   'you go keeps the balance right on its own.',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,

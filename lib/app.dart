@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/branding/app_info.dart';
 import 'core/branding/brand_mark.dart';
 import 'core/money.dart';
+import 'core/notifications/notification_service.dart';
 import 'core/routing/app_router.dart';
 import 'core/security/screen_security.dart';
 import 'core/security/unlock_method.dart';
@@ -16,6 +17,7 @@ import 'core/widgets/money_text.dart';
 import 'data/providers.dart';
 import 'features/message_capture/parser/bank_message.dart';
 import 'features/message_capture/share_intake.dart';
+import 'features/message_capture/sms_capture_bridge.dart';
 import 'features/security/lock_screen.dart';
 
 class XpencApp extends ConsumerStatefulWidget {
@@ -32,6 +34,7 @@ class _XpencAppState extends ConsumerState<XpencApp>
   /// instead of risking a flash of real data before the lock engages.
   bool _passcodeKnown = false;
   bool _locked = false;
+  final _handledCapture = <String>{};
 
   /// When the app was last backgrounded — the anchor a non-zero
   /// [pinTimeoutMinutesProvider] is measured from on the next resume. Null
@@ -80,8 +83,17 @@ class _XpencAppState extends ConsumerState<XpencApp>
       monthSummary.expense,
     );
 
+    onCaptureNotificationTap = (id, pickCategory) {
+      final key = '$id:$pickCategory';
+      if (!_handledCapture.add(key)) return;
+      appRouter.push(
+        pickCategory ? '/more/capture/category/$id' : '/add?id=$id',
+      );
+    };
     final notifications = ref.read(notificationServiceProvider);
     await notifications.init();
+    final launch = await notifications.takeCaptureLaunch();
+    if (launch != null) notificationForegroundResponse(launch);
     await notifications.syncReminders();
     await notifications.syncCreditCardReminders();
     await notifications.syncExpenseReminder();
@@ -94,6 +106,7 @@ class _XpencAppState extends ConsumerState<XpencApp>
 
     await _runRecurring();
     await _scanMessages();
+    await _drainIncomingSms();
     await _runAutoBackup();
   }
 
@@ -134,6 +147,7 @@ class _XpencAppState extends ConsumerState<XpencApp>
       _pausedAt = null;
       _runRecurring();
       _scanMessages();
+      _drainIncomingSms();
       _runAutoBackup();
       // Restores the shortcut if the system cleared it under memory
       // pressure while `ongoing: true` normally keeps a swipe from doing so.
@@ -196,6 +210,15 @@ class _XpencAppState extends ConsumerState<XpencApp>
     await ref.read(backupServiceProvider).runAutoBackupIfDue();
   }
 
+  Future<void> _drainIncomingSms() async {
+    final ready = ref.read(databaseReadyProvider).valueOrNull ?? false;
+    if (!ready) return;
+    await SmsCaptureBridge.attach(
+      ref.read(dbProvider),
+      ref.read(notificationServiceProvider),
+    );
+  }
+
   Future<void> _scanMessages() async {
     final result = await ref.read(captureServiceProvider).scan();
     if (!result.didRun) return;
@@ -208,7 +231,7 @@ class _XpencAppState extends ConsumerState<XpencApp>
     }
   }
 
-  /// The user just shared a message into XPENC from another app — see
+  /// The user just shared a message into Expens from another app — see
   /// `ShareIntakeService`. Ingested lands straight in the Review Inbox,
   /// since that is exactly where "filter it and add as expense or income"
   /// already happens; anything else gets a plain-language reason instead of

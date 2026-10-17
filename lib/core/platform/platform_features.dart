@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart';
 ///
 /// iOS is the only platform with gaps today. Each one is a missing native
 /// half, not a Dart limitation: home-screen widgets need a WidgetKit
-/// extension, share-to-XPENC a Share extension, OCR a Vision-based plugin,
+/// extension, share-to-Expens a Share extension, OCR a Vision-based plugin,
 /// and the rest are things iOS simply doesn't offer an app.
 abstract final class PlatformFeatures {
   /// Pretends to be (or not to be) iOS — for tests, which run on the host OS.
@@ -20,7 +20,7 @@ abstract final class PlatformFeatures {
   /// Home-screen widgets (Android's AppWidgets — see `HomeWidgetService`).
   static bool get homeWidgets => !isIOS;
 
-  /// Picking XPENC from another app's Share sheet (see `ShareIntakeService`).
+  /// Picking Expens from another app's Share sheet (see `ShareIntakeService`).
   static bool get shareIntake => !isIOS;
 
   /// On-device text recognition — the Tesseract plugin is Android-only.

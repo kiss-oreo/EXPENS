@@ -160,6 +160,12 @@ class MoreScreen extends ConsumerWidget {
           subtitle: 'Income & expense categories',
         ),
         _Item(
+          Icons.storefront_outlined,
+          'Merchants',
+          route: '/more/merchants',
+          subtitle: 'Aliases, merge, and category rules',
+        ),
+        _Item(
           Icons.sell_outlined,
           'Tags',
           route: '/more/tags',

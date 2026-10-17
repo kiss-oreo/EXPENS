@@ -4,7 +4,7 @@ import '../../core/permissions/app_permissions.dart';
 import '../../core/widgets/app_surfaces.dart';
 import 'settings_common.dart';
 
-/// Every permission XPENC holds or could ask for, and every one it never
+/// Every permission Expens holds or could ask for, and every one it never
 /// asks for. Turning a permission on shows Android's own dialog; turning one
 /// off has to happen in system settings — Android gives apps no way to
 /// revoke their own grants — so the switch sends the user there.
@@ -48,7 +48,7 @@ class _PermissionsSettingsScreenState extends State<PermissionsSettingsScreen> {
           title: 'Allow in system settings',
           body:
               'Android won\'t ask again for ${p.title.toLowerCase()}. '
-              'Open XPENC\'s settings page to allow it there.',
+              'Open Expens\'s settings page to allow it there.',
         );
         if (go) await AppPermissions.openSettings(p);
       }
@@ -57,7 +57,7 @@ class _PermissionsSettingsScreenState extends State<PermissionsSettingsScreen> {
         title: 'Turn off in system settings',
         body:
             'Android only lets you remove a permission from system '
-            'settings. Turning one off there restarts XPENC — your data '
+            'settings. Turning one off there restarts Expens — your data '
             'is not affected.',
       );
       if (go) await AppPermissions.openSettings(p);
@@ -154,15 +154,15 @@ class _PermissionsSettingsScreenState extends State<PermissionsSettingsScreen> {
                 const _InfoTile(
                   icon: Icons.wifi_off_rounded,
                   title: 'Internet',
-                  subtitle: 'XPENC cannot connect to the internet — your '
+                  subtitle: 'Expens cannot connect to the internet — your '
                       'data never leaves this device',
                 ),
                 Divider(height: 1, color: cs.outline),
                 const _InfoTile(
                   icon: Icons.sms_outlined,
-                  title: 'SMS',
-                  subtitle: 'Bank messages come in only when you share one '
-                      'to XPENC',
+                  title: 'SMS inbox',
+                  subtitle: 'Never requested. Only the message that just '
+                      'arrived can be read, and only if you turn capture on',
                 ),
                 Divider(height: 1, color: cs.outline),
                 const _InfoTile(
@@ -202,6 +202,7 @@ class _PermissionTile extends StatelessWidget {
     AppPermission.notifications => Icons.notifications_outlined,
     AppPermission.camera => Icons.photo_camera_outlined,
     AppPermission.contacts => Icons.contacts_outlined,
+    AppPermission.sms => Icons.sms_outlined,
   };
 
   @override

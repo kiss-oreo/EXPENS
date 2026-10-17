@@ -1,4 +1,4 @@
-package com.yash.xpenc
+package com.kissoreo.expens
 
 import android.appwidget.AppWidgetManager
 import android.content.Context

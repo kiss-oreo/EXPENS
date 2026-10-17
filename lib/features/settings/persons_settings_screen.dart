@@ -293,7 +293,7 @@ class PersonsSettingsScreen extends ConsumerWidget {
     );
   }
 
-  /// Explains *99# before anyone turns the beta on: what it is, what XPENC
+  /// Explains *99# before anyone turns the beta on: what it is, what Expens
   /// can and can't automate, and what actually happens when they use it.
   Future<void> _showUssdPayInfoSheet(BuildContext context) {
     return showAppSheet<void>(
@@ -331,7 +331,7 @@ class PersonsSettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'XPENC can\'t read or answer the *99# menu for you — that '
+                'Expens can\'t read or answer the *99# menu for you — that '
                 'screen belongs to your phone\'s own dialer, not any app. '
                 'What this does instead:',
                 style: theme.textTheme.bodyMedium,
@@ -339,11 +339,11 @@ class PersonsSettingsScreen extends ConsumerWidget {
               const SizedBox(height: 8),
               Text(
                 '1. You enter who you\'re paying (UPI ID or phone number).\n'
-                '2. Tap Dial *99# — XPENC copies it and opens your dialer, '
+                '2. Tap Dial *99# — Expens copies it and opens your dialer, '
                 'ready to call.\n'
                 '3. You go through the menu yourself: Send Money → paste → '
                 'amount → UPI PIN.\n'
-                '4. Back in XPENC, log it as a normal transaction.',
+                '4. Back in Expens, log it as a normal transaction.',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),

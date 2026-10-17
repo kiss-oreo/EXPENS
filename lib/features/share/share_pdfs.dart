@@ -44,7 +44,7 @@ Future<Uint8List> buildTransactionPdf(TransactionShare s) async {
   final color = _pdfColor(s.color.toARGB32());
   final doc = pw.Document(
     title: '${s.typeLabel} · ${PdfKit.date(t.date)}',
-    author: 'XPENC',
+    author: 'Expens',
   );
 
   final amount = kit.money(s.signedAmount, s.currency, signed: !s.isTransfer);
@@ -218,7 +218,7 @@ Future<Uint8List> buildPersonStatementPdf(
   final ledger = s.ledger(period);
   final currency = MoneyFormat.currency;
   final owner = s.owner;
-  final doc = pw.Document(title: '${p.name} · statement', author: 'XPENC');
+  final doc = pw.Document(title: '${p.name} · statement', author: 'Expens');
   String m(Money v) => kit.money(v, currency);
 
   PdfCell balanceCell(Money b) => PdfCell(
@@ -351,7 +351,7 @@ Future<Uint8List> buildGroupStatementPdf(
   final owner = s.owner;
   final doc = pw.Document(
     title: '${g.name} · group statement',
-    author: 'XPENC',
+    author: 'Expens',
   );
   String m(Money v) => kit.money(v, currency);
 

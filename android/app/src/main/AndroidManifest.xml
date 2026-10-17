@@ -1,11 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <!-- No SMS permissions — deliberately. READ_SMS made Google Play Protect
-         block direct APK installs (users had to pause protection to install),
-         so bank-SMS auto-capture is paused. The capture pipeline still exists
-         behind the MessageSource interface; do NOT re-add READ_SMS here without
-         re-testing sideload install on a Play-Protect-enabled device.
-         test/native_channel_test.dart fails the build if this returns. -->
+    <!-- Incoming SMS only. READ_SMS is never requested and the SMS content
+         provider is never queried. The receiver processes the message that
+         just arrived. test/native_channel_test.dart fails the build if
+         READ_SMS or an inbox query returns. -->
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <!-- WorkManager (pulled in transitively by flutter_local_notifications)
          declares this by default for network-constrained jobs. XPENC is
@@ -96,6 +95,18 @@
                 <data android:mimeType="image/*"/>
             </intent-filter>
         </activity>
+
+        <!-- Incoming bank SMS. Declared in the manifest so it runs for the
+             message that just arrived, without a notification listener or
+             an inbox scan. -->
+        <receiver
+            android:name=".SmsCaptureReceiver"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter android:priority="999">
+                <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
+            </intent-filter>
+        </receiver>
 
         <!-- The home-screen Balance widget. -->
         <receiver android:name=".BalanceWidgetProvider"

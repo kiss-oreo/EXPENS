@@ -11,7 +11,7 @@ import '../../data/providers.dart';
 /// Opt-in statement/due-date tracking for a credit card (GitHub #91) — off
 /// unless the user turns it on, same shape as [EnvelopeSection]'s own
 /// per-account toggle. "Amount due" is just the account's current
-/// (negative) balance — XPENC doesn't snapshot a frozen balance at each
+/// (negative) balance — Expens doesn't snapshot a frozen balance at each
 /// statement close, so this reads as "what you owe right now", not "what
 /// last month's statement said", which stays true even after a fresh
 /// purchase moves the number.

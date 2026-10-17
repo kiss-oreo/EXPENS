@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import '../../core/money.dart';
 import '../../data/tables.dart';
 
-/// XPENC Score — a 0–100 read on how well money is being managed, built only
+/// Expens Score — a 0–100 read on how well money is being managed, built only
 /// from what's already in the ledger. Pure: [computeXpencScore] takes a plain
 /// [XpencScoreInput] snapshot so every rule is unit-testable without a
 /// database (the provider that assembles the snapshot lives in

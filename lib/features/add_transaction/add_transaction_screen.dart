@@ -145,6 +145,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   /// Expense only — who got paid. Free text with autocomplete, never read for
   /// any other transaction type.
   final _payeeController = TextEditingController();
+  final _referenceController = TextEditingController();
+  String? _paymentMethod;
+  int? _loadedCategoryId;
 
   /// Set when the payee is one of the user's people (picked in the payee
   /// sheet) — a label only, never owe/due. Cleared with the payee.
@@ -305,6 +308,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     _noteController.dispose();
     _noteFocus.dispose();
     _payeeController.dispose();
+    _referenceController.dispose();
     for (final row in _splitRows) {
       row.dispose();
     }
@@ -329,6 +333,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     final row = await db.transactionById(widget.transactionId!);
     final tagIds = await db.tagIdsForTransaction(widget.transactionId!);
     final splits = await db.splitsForTransaction(widget.transactionId!);
+    final extra = await MerchantStore(db).extraFor(widget.transactionId!);
     if (!mounted) return;
 
     if (row == null) {
@@ -366,6 +371,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       _date = row.date;
       _noteController.text = row.note ?? '';
       _payeeController.text = row.payee ?? '';
+      _loadedCategoryId = row.categoryId;
+      _paymentMethod = extra?.paymentMethod;
+      _referenceController.text = extra?.bankReference ?? '';
       _payeePersonId = row.type.isIncomeOrExpense ? row.personId : null;
       _tagIds = tagIds.toSet();
       _imagePath = row.imagePath;
@@ -739,7 +747,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           children: [
             AppListTile(
               leading: const AppIcon(Icons.grid_view_rounded),
-              title: const Text('XPENC icon'),
+              title: const Text('Expens icon'),
               subtitle: const Text('Pick from the app\'s own icon library'),
               onTap: () =>
                   Navigator.of(sheetContext).pop(_CustomIconSource.library),
@@ -1936,6 +1944,48 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       // orphan `dispose()` needs to clean up.
       _unsavedPickedPath = null;
       await db.setTransactionTags(id, _tagIds);
+      final store = MerchantStore(db);
+      if (payee != null) {
+        await store.upsertFromRaw(payee);
+      }
+      final previous = await store.extraFor(id);
+      await store.setTxExtra(
+        transactionId: id,
+        paymentMethod: _paymentMethod,
+        bankReference: _referenceController.text.trim().isEmpty
+            ? null
+            : _referenceController.text.trim(),
+        source: previous?.source ?? 'MANUAL',
+        needsReview: false,
+      );
+      if (_isEditing &&
+          categoryId != null &&
+          categoryId != _loadedCategoryId &&
+          payee != null &&
+          mounted) {
+        final apply = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Apply to this merchant?'),
+            content: Text(
+              'Apply “$payee” → this category to every transaction from this merchant, and save it as a rule?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('Just this one'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text('Apply to all'),
+              ),
+            ],
+          ),
+        );
+        if (apply == true) {
+          await store.applyCategoryToAll(payee: payee, categoryId: categoryId);
+        }
+      }
       await db.setTransactionSplits(
         id,
         _isSplitting
@@ -2320,6 +2370,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       tiles.add(_payeeCard());
     }
     tiles.add(const SizedBox(height: 12));
+    tiles.add(_paymentCard());
+    tiles.add(const SizedBox(height: 12));
     tiles.add(_noteCard());
     tiles.add(const SizedBox(height: 12));
     tiles.add(_nctToggleTile());
@@ -2421,6 +2473,50 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           ),
         ),
         trailing: const AppIcon(Icons.chevron_right_rounded),
+      ),
+    );
+  }
+
+  Widget _paymentCard() {
+    final theme = Theme.of(context);
+    const methods = ['UPI', 'CARD', 'CASH', 'NETBANKING'];
+    return AppCard(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Payment',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final method in methods)
+                  ChoiceChip(
+                    label: Text(method == 'NETBANKING' ? 'Net banking' : method),
+                    selected: _paymentMethod == method,
+                    onSelected: (on) => setState(
+                      () => _paymentMethod = on ? method : null,
+                    ),
+                  ),
+              ],
+            ),
+            TextField(
+              controller: _referenceController,
+              decoration: const InputDecoration(
+                hintText: 'Bank reference / UTR (optional)',
+                border: InputBorder.none,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

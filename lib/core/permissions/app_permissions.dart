@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 
-/// A runtime permission XPENC asks for, and why — what Settings > Permissions
+/// A runtime permission Expens asks for, and why — what Settings > Permissions
 /// lists. Each one is optional: the feature that needs it degrades, nothing
 /// else breaks.
 enum AppPermission {
@@ -20,6 +20,13 @@ enum AppPermission {
     reason:
         'Import a phone number and photo when you pick a person from '
         'contacts. Without it, picking still works — name only',
+  ),
+  sms(
+    androidName: 'android.permission.RECEIVE_SMS',
+    title: 'Incoming SMS',
+    reason:
+        'Record a bank payment from the message that just arrived. '
+        'The inbox is never read',
   );
 
   const AppPermission({

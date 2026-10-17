@@ -7,8 +7,13 @@ import 'package:timezone/timezone.dart' as tz;
 
 import '../../data/database.dart';
 import '../../data/tables.dart';
+import '../branding/app_info.dart';
 import '../money.dart';
 import '../platform/platform_features.dart';
+/// Set by the app shell. Kept out of this file so notifications do not
+/// import the router (that import cycle pulls the capture bridge back in).
+/// [pickCategory] is true for the Category action; a body tap is false.
+void Function(int transactionId, bool pickCategory)? onCaptureNotificationTap;
 
 /// Local notifications only. Nothing leaves the device.
 class NotificationService {
@@ -91,7 +96,9 @@ class NotificationService {
         // to `_quickAddBackgroundResponse` on its own background isolate.
         // `onDidReceiveNotificationResponse` (foreground) has nothing to
         // handle right now — nothing else in the app defines an action.
-        onDidReceiveBackgroundNotificationResponse: _quickAddBackgroundResponse,
+        onDidReceiveNotificationResponse: notificationForegroundResponse,
+        onDidReceiveBackgroundNotificationResponse:
+            notificationBackgroundResponse,
       );
 
       final android = _plugin
@@ -342,6 +349,54 @@ class NotificationService {
       '${d.day.toString().padLeft(2, '0')}-${d.month.toString().padLeft(2, '0')}-${d.year}';
 
   // ── Capture ───────────────────────────────────────────────────────────────
+
+  static const captureEditAction = 'capture_edit';
+  static const captureDeleteAction = 'capture_delete';
+
+  /// "Rs X spent at Y. Tap to edit", with Category and Delete actions.
+  Future<NotificationResponse?> takeCaptureLaunch() =>
+      captureLaunchResponse(_plugin);
+
+  Future<void> showCaptured({
+    required int transactionId,
+    required String body,
+  }) async {
+    if (!_ready) return;
+    final settings = await _db.getSettings();
+    if (!settings.notificationsEnabled) return;
+    try {
+      await _plugin.show(
+        id: 500000 + transactionId,
+        title: AppInfo.name,
+        body: body,
+        notificationDetails: NotificationDetails(
+          android: AndroidNotificationDetails(
+            _captureChannel.id,
+            _captureChannel.name,
+            channelDescription: _captureChannel.description,
+            importance: Importance.high,
+            priority: Priority.high,
+            actions: const [
+              AndroidNotificationAction(
+                captureEditAction,
+                'Category',
+                showsUserInterface: true,
+                cancelNotification: true,
+              ),
+              AndroidNotificationAction(
+                captureDeleteAction,
+                'Delete',
+                cancelNotification: true,
+              ),
+            ],
+          ),
+        ),
+        payload: 'edit:$transactionId',
+      );
+    } catch (e) {
+      debugPrint('capture notification failed: $e');
+    }
+  }
 
   Future<void> notifyDetected(int count) async {
     if (count <= 0) return;
@@ -633,6 +688,66 @@ class NotificationService {
 /// human looking at the account/category first; seeing that as *not* what
 /// you want next is exactly why `Settings > Quick add from notification`
 /// exists as an opt-in.
+@pragma('vm:entry-point')
+void notificationBackgroundResponse(NotificationResponse response) {
+  final captured = captureTransactionId(response.payload);
+  if (captured != null) {
+    if (response.actionId == NotificationService.captureDeleteAction) {
+      unawaited(deleteCapturedTransaction(captured));
+    }
+    return;
+  }
+  _quickAddBackgroundResponse(response);
+}
+
+void notificationForegroundResponse(NotificationResponse response) {
+  final id = captureTransactionId(response.payload);
+  if (id == null) return;
+  if (response.actionId == NotificationService.captureDeleteAction) {
+    unawaited(deleteCapturedTransaction(id));
+    return;
+  }
+  onCaptureNotificationTap?.call(
+    id,
+    response.actionId == NotificationService.captureEditAction,
+  );
+}
+
+/// The notification that launched a cold start, if it was a captured payment.
+Future<NotificationResponse?> captureLaunchResponse(
+  FlutterLocalNotificationsPlugin plugin,
+) async {
+  try {
+    final details = await plugin.getNotificationAppLaunchDetails();
+    if (details == null || !details.didNotificationLaunchApp) return null;
+    final response = details.notificationResponse;
+    if (response == null || captureTransactionId(response.payload) == null) {
+      return null;
+    }
+    return response;
+  } catch (e) {
+    debugPrint('capture launch lookup failed: $e');
+    return null;
+  }
+}
+
+int? captureTransactionId(String? payload) {
+  if (payload == null || !payload.startsWith('edit:')) return null;
+  return int.tryParse(payload.substring(5));
+}
+
+Future<void> deleteCapturedTransaction(int id) async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final db = AppDatabase();
+  try {
+    await db.deleteTransaction(id);
+  } catch (e) {
+    debugPrint('capture delete failed: $e');
+  } finally {
+    await db.close();
+  }
+}
+
 @pragma('vm:entry-point')
 void _quickAddBackgroundResponse(NotificationResponse response) {
   unawaited(_handleQuickAddReply(response));

@@ -2,18 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/branding/app_info.dart';
 import '../../core/widgets/app_surfaces.dart';
-import '../../data/providers.dart';
 import '../../core/widgets/nav_bar_inset.dart';
+import '../../data/database.dart';
+import '../../data/ledger_extensions.dart';
+import '../../data/providers.dart';
+import 'sms_capture_bridge.dart';
 
-/// Bank-SMS auto-capture is paused — this screen says so, honestly.
-///
-/// The 1.0 builds read bank SMS on-device and turned them into review cards.
-/// Google Play Protect blocks direct-download APKs that request SMS
-/// permissions, so installing XPENC meant pausing Play Protect first — the
-/// wrong trade for a money app. 1.1.0 removed the permission; the whole
-/// pipeline (parser, dedupe, Review Inbox) still exists behind the
-/// `MessageSource` interface and returns in a Play-compliant form.
+final keepRawSmsProvider = FutureProvider<bool>((ref) {
+  return keepRawSms(ref.watch(dbProvider));
+});
+
+final senderRulesListProvider = StreamProvider((ref) {
+  return ref.watch(dbProvider).watchSenderRules();
+});
+
+/// Incoming-SMS capture. Off until the user turns it on, after an
+/// explanation screen. Never scans the inbox.
 class MessageCaptureScreen extends ConsumerWidget {
   const MessageCaptureScreen({super.key});
 
@@ -21,125 +27,166 @@ class MessageCaptureScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    // Cards captured by an older build stay reviewable — never strand data.
-    final pendingCount = ref.watch(pendingCountProvider);
+    final settings = ref.watch(settingsProvider).valueOrNull;
+    final enabled = settings?.messageCaptureEnabled ?? false;
+    final keepRaw = ref.watch(keepRawSmsProvider).valueOrNull ?? false;
+    final rules = ref.watch(senderRulesListProvider).valueOrNull ?? const [];
+    final pending = ref.watch(pendingCountProvider);
 
     return Scaffold(
       appBar: AppTopBar(title: const Text('Message Capture')),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 40).plusNavBar(context),
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 32).plusNavBar(context),
         children: [
+          Text(
+            '${AppInfo.name} listens only for the SMS that just arrived. '
+            'It does not read your inbox, does not store the message unless '
+            'you ask, and does not use the internet.',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: cs.onSurfaceVariant,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 16),
           AppCard(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: cs.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(16),
+            child: Column(
+              children: [
+                AppSwitchListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  secondary: const AppIcon(Icons.sms_outlined),
+                  title: const Text('Capture incoming SMS'),
+                  subtitle: Text(
+                    enabled
+                        ? 'On. Pause this any time — nothing already saved is deleted.'
+                        : 'Off. Bank texts are ignored until you turn this on.',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: cs.onSurfaceVariant,
                     ),
-                    child: AppIcon(Icons.sms_outlined, color: cs.onSurface),
                   ),
-                  const SizedBox(height: 18),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
+                  value: enabled,
+                  onChanged: (on) => _setEnabled(context, ref, on),
+                ),
+                Divider(height: 1, indent: 60, color: cs.outline),
+                AppSwitchListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  secondary: const AppIcon(Icons.bug_report_outlined),
+                  title: const Text('Keep raw SMS for debugging'),
+                  subtitle: Text(
+                    'Off by default. When on, the message text is stored with '
+                    'the transaction so a bad parse can be inspected.',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: cs.onSurfaceVariant,
                     ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: cs.outline),
-                      borderRadius: BorderRadius.circular(999),
+                  ),
+                  value: keepRaw,
+                  onChanged: (on) async {
+                    await setMetaValue(ref.read(dbProvider), 'keep_raw_sms', on ? '1' : '0');
+                    await SmsCaptureBridge.setKeepRaw(on);
+                    ref.invalidate(keepRawSmsProvider);
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          AppCard(
+            child: Column(
+              children: [
+                AppListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  leading: const AppIcon(Icons.science_outlined),
+                  title: const Text('Parser test'),
+                  subtitle: Text(
+                    'Paste a sample and see the fields',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: cs.onSurfaceVariant,
                     ),
-                    child: Text(
-                      'COMING SOON',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.2,
+                  ),
+                  trailing: const AppIcon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/more/capture/parser-test'),
+                ),
+                Divider(height: 1, indent: 60, color: cs.outline),
+                AppListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  leading: const AppIcon(Icons.restore_outlined),
+                  title: const Text('Removed payments'),
+                  subtitle: Text(
+                    'Restore one that was dropped by mistake',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                  trailing: const AppIcon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/more/capture/ignored'),
+                ),
+                if (pending > 0) ...[
+                  Divider(height: 1, indent: 60, color: cs.outline),
+                  AppListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    leading: const AppIcon(Icons.inbox_outlined),
+                    title: const Text('Review Inbox'),
+                    subtitle: Text(
+                      '$pending still waiting',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: cs.onSurfaceVariant,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 14),
-                  Text(
-                    'Auto-capture will be back',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'XPENC used to read bank SMS on this device and turn them '
-                    'into review cards. Google Play Protect blocks apps '
-                    'installed outside the Play Store that ask for SMS '
-                    'permissions — installing XPENC meant pausing your '
-                    "phone's protection first. That is the wrong trade for a "
-                    'money app, so this version removes the SMS permission '
-                    'entirely and installs cleanly.',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: cs.onSurfaceVariant,
-                      height: 1.5,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Auto-capture returns in a Play-compliant form. Until '
-                    'then, adding a transaction by hand takes a few seconds — '
-                    'and everything else works exactly as before.',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: cs.onSurfaceVariant,
-                      height: 1.5,
-                    ),
+                    trailing: const AppIcon(Icons.chevron_right_rounded),
+                    onTap: () => context.push('/inbox'),
                   ),
                 ],
-              ),
+              ],
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 18),
+          Text(
+            'ENABLED BANKS',
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: cs.onSurfaceVariant,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.1,
+            ),
+          ),
+          const SizedBox(height: 8),
           AppCard(
-            child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AppIcon(Icons.lock_outline, color: cs.onSurfaceVariant),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Text(
-                      'Nothing about the privacy promise changes: your data '
-                      'lives on this device and is never uploaded. This build '
-                      'simply asks for no SMS permission at all.',
-                      style: theme.textTheme.bodyMedium,
+            child: Column(
+              children: [
+                for (final (i, rule) in rules.indexed) ...[
+                  if (i > 0) Divider(height: 1, color: cs.outline),
+                  AppSwitchListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    title: Text(rule.bankName),
+                    subtitle: Text(
+                      rule.senderPattern,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
                     ),
+                    value: rule.enabled,
+                    onChanged: (on) => ref
+                        .read(dbProvider)
+                        .setSenderRuleEnabled(rule.id, on),
                   ),
                 ],
-              ),
+              ],
             ),
           ),
-          if (pendingCount > 0) ...[
-            const SizedBox(height: 14),
-            AppCard(
-              child: AppListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                leading: const AppIcon(Icons.inbox_outlined),
-                title: const Text('Review Inbox'),
-                subtitle: Text(
-                  '$pendingCount earlier detected '
-                  '${pendingCount == 1 ? 'transaction' : 'transactions'} '
-                  'still waiting for review',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: cs.onSurfaceVariant,
-                  ),
-                ),
-                trailing: const AppIcon(Icons.chevron_right_rounded),
-                onTap: () => context.push('/inbox'),
-              ),
-            ),
-          ],
         ],
       ),
     );
+  }
+
+  Future<void> _setEnabled(
+    BuildContext context,
+    WidgetRef ref,
+    bool on,
+  ) async {
+    final db = ref.read(dbProvider);
+    if (on) {
+      final granted = await context.push<bool>('/more/capture/permission');
+      if (granted != true) return;
+    }
+    await db.setMessageCaptureEnabled(on);
+    await SmsCaptureBridge.setEnabled(on);
   }
 }

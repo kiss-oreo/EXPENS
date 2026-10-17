@@ -1,0 +1,192 @@
+# Incoming bank SMS samples. The unit test runs the parser against every block.
+# A block is a header, a line that is exactly ---, the body, then a line that
+# is exactly ===. Do not put real account numbers here.
+
+id: hdfc-debit
+sender: VM-HDFCBK-S
+expect: debit
+amount_paise: 25050
+account: 1234
+merchant_contains: Swiggy
+reference: 123456789012
+balance_paise: 900000
+payment_method: UPI
+---
+Rs 250.50 debited from A/c XX1234 on 12-10-2026 14:30 at Swiggy. UPI Ref 123456789012. Avl Bal Rs 9,000.00
+===
+id: sbi-debit
+sender: AD-SBIUPI-S
+expect: debit
+amount_paise: 9900
+account: 5678
+merchant_contains: Zomato
+reference: 998877665544
+balance_paise: 450025
+payment_method: UPI
+---
+Rs 99.00 debited from A/c XX5678. Info: UPI/Zomato/okaxis. UTR 998877665544. Avl Bal Rs 4,500.25
+===
+id: icici-credit
+sender: VM-ICICIB-S
+expect: credit
+amount_paise: 150000
+account: 4321
+merchant_contains: SWIGGY
+reference: 112233445566
+balance_paise: 2000000
+payment_method: NETBANKING
+---
+Rs 1,500.00 credited to A/c XX4321; SWIGGY credited. NEFT Ref No 112233445566. Avl Bal Rs 20,000.00
+===
+id: axis-card
+sender: VK-AXISBK-S
+expect: debit
+amount_paise: 7500
+account: 2468
+merchant_contains: BigBazaar
+reference: 556677889900
+balance_paise: 320000
+payment_method: CARD
+---
+Rs 75.00 spent on Card XX2468 at BigBazaar. Ref No 556677889900. Avl Bal Rs 3,200.00
+===
+id: kotak-debit
+sender: AD-KOTAKB-S
+expect: debit
+amount_paise: 4000
+account: 1357
+merchant_contains: Cafe Coffee
+reference: 445566778899
+balance_paise: 111100
+payment_method: UPI
+---
+Rs 40.00 debited from A/c XX1357. Payee: Cafe Coffee. UPI Ref 445566778899. Avl Bal Rs 1,111.00
+===
+id: pnb-debit
+sender: VM-PNBSMS-S
+expect: debit
+amount_paise: 21000
+account: 8642
+merchant_contains: Metro
+reference: 223344556677
+balance_paise: 800000
+---
+Rs 210.00 debited from A/c XX8642 towards Metro. Ref No 223344556677. Avl Bal Rs 8,000.00
+===
+id: bob-upi
+sender: AD-BOBTXN-S
+expect: debit
+amount_paise: 6000
+account: 9753
+merchant_contains: IRCTC
+reference: 334455667788
+balance_paise: 220000
+payment_method: UPI
+---
+Rs 60.00 debited from A/c XX9753 towards UPI/IRCTC. UTR 334455667788. Avl Bal Rs 2,200.00
+===
+id: canara-debit
+sender: VM-CANBNK-S
+expect: debit
+amount_paise: 1850
+account: 1111
+merchant_contains: Bookshop
+reference: 121212121212
+balance_paise: 60000
+---
+Rs 18.50 debited from A/c XX1111 towards Bookshop. UTR 121212121212. Avl Bal Rs 600.00
+===
+id: union-upi
+sender: AD-UNIONB-S
+expect: debit
+amount_paise: 50000
+account: 2222
+merchant_contains: Amazon
+reference: 909090909090
+balance_paise: 777700
+payment_method: UPI
+---
+Rs 500.00 debited from A/c XX2222. Info: UPI/Amazon. UTR 909090909090. Avl Bal Rs 7,777.00
+===
+id: idfc-debit
+sender: VM-IDFCFB-S
+expect: debit
+amount_paise: 8800
+account: 3333
+merchant_contains: Pharmacy
+reference: 808080808080
+balance_paise: 404000
+---
+Rs 88.00 debited from A/c XX3333 to Pharmacy. UTR 808080808080. Avl Bal Rs 4,040.00
+===
+id: yes-debit
+sender: AD-YESBNK-S
+expect: debit
+amount_paise: 3300
+account: 4444
+merchant_contains: Dmart
+reference: 707070707070
+balance_paise: 55500
+---
+Rs 33.00 debited from A/c XX4444. Info: Dmart. UTR 707070707070. Avl Bal Rs 555.00
+===
+id: ippb-debit
+sender: VM-IPPB-S
+expect: debit
+amount_paise: 1500
+account: 5555
+merchant_contains: Postoffice
+reference: 606060606060
+balance_paise: 20000
+---
+Rs 15.00 debited from A/c XX5555 at Postoffice. UTR 606060606060. Avl Bal Rs 200.00
+===
+id: hdfc-otp
+sender: VM-HDFCBK-S
+expect: ignore
+reason: otp
+---
+Your OTP is 482913 for HDFC Bank. Do not share it with anyone.
+===
+id: sbi-promo
+sender: AD-SBIINB-S
+expect: ignore
+reason: promotional
+---
+Pre-approved loan offer of Rs 50,000. Click here. T&C apply.
+===
+id: axis-balance
+sender: VK-AXISBK-S
+expect: ignore
+reason: balanceOnly
+---
+Your A/c XX2468 available balance is Rs 3,200.00.
+===
+id: kotak-mandate
+sender: AD-KOTAKB-S
+expect: ignore
+reason: mandate
+---
+E-mandate registered for Autopay on your Kotak account. No amount is debited.
+===
+id: spoofed-number
+sender: +919876543210
+expect: ignore
+reason: spoofed
+---
+Rs 10.00 debited from A/c XX9999 at Shop. UTR 101010101010.
+===
+id: hdfc-declined
+sender: VM-HDFCBK-S
+expect: ignore
+reason: declined
+---
+Rs 500.00 transaction declined on A/c XX1234 at Shop. Not processed.
+===
+id: hdfc-unknown
+sender: VM-HDFCBK-S
+expect: ignore
+reason: noDirection
+---
+Thank you for banking with HDFC. Visit the branch for your passbook.
+===

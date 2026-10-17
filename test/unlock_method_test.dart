@@ -72,7 +72,7 @@ void main() {
       final uri = Totp.provisioningUri('ABCDEFGH', label: 'me@example.com');
       expect(uri, startsWith('otpauth://totp/'));
       expect(uri, contains('secret=ABCDEFGH'));
-      expect(uri, contains('issuer=XPENC'));
+      expect(uri, contains('issuer=Expens'));
       expect(uri, contains('digits=6'));
       expect(uri, contains('period=30'));
       expect(uri, isNot(contains('algorithm=')));

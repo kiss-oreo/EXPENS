@@ -2,56 +2,52 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-/// Guards the 1.1.0 decision to ship with **no SMS permission**.
-///
-/// Google Play Protect blocks direct-download APKs that request SMS
-/// permissions — users had to pause protection just to install XPENC. The
-/// permission and the `money_manager/sms` platform channel were removed, and
-/// nothing else in the repo would fail if someone quietly re-added them: the
-/// Dart tests inject a `FakeMessageSource`, so a manifest edit ships silently.
-///
-/// This file is what makes the removal stick. If capture returns, it must be
-/// through a Play-compliant source (e.g. a NotificationListenerService), and
-/// whoever lands it should update this test *deliberately* — after re-testing
-/// a sideload install on a Play-Protect-enabled device.
+/// SMS capture is a manifest BroadcastReceiver for the message that just
+/// arrived. READ_SMS and inbox queries stay forbidden — Play Protect and the
+/// privacy spec both reject them. RECEIVE_SMS is the one permission this
+/// feature is allowed to request, and only after the explanation screen.
 void main() {
-  test('the manifest requests no SMS permissions', () {
-    final manifest =
-        File('android/app/src/main/AndroidManifest.xml').readAsStringSync();
+  test('the manifest requests RECEIVE_SMS and never READ_SMS', () {
+    final manifest = File(
+      'android/app/src/main/AndroidManifest.xml',
+    ).readAsStringSync();
 
-    expect(
-      manifest.contains('android.permission.READ_SMS'),
-      isFalse,
-      reason: 'READ_SMS is back in the manifest — Play Protect blocks '
-          'sideloaded installs that request it. See this test\'s doc comment.',
-    );
-    expect(
-      manifest.contains('android.permission.RECEIVE_SMS'),
-      isFalse,
-      reason: 'RECEIVE_SMS is even more restricted than READ_SMS.',
-    );
+    expect(manifest.contains('android.permission.READ_SMS'), isFalse);
+    expect(manifest.contains('android.permission.RECEIVE_SMS'), isTrue);
+    expect(manifest.contains('android.provider.Telephony.SMS_RECEIVED'), isTrue);
+    expect(manifest.contains('content://sms'), isFalse);
   });
 
-  test('MainActivity carries no SMS code', () {
-    final kotlin =
-        File('android/app/src/main/kotlin/com/yash/xpenc/MainActivity.kt')
-            .readAsStringSync();
+  test('MainActivity carries no SMS inbox code', () {
+    final kotlin = File(
+      'android/app/src/main/kotlin/com/kissoreo/expens/MainActivity.kt',
+    ).readAsStringSync();
 
-    // The old channel read the inbox via Telephony.Sms — its return would mean
-    // SMS code shipped again without the manifest permission (dead code at
-    // best, a Play Protect static-analysis flag at worst).
     expect(kotlin.contains('Telephony'), isFalse);
     expect(kotlin.contains('Manifest.permission'), isFalse);
+    expect(kotlin.contains('READ_SMS'), isFalse);
+  });
+
+  test('the receiver never queries the inbox', () {
+    final kotlin = Directory('android/app/src/main/kotlin')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.kt'))
+        .map((f) => f.readAsStringSync())
+        .join('\n');
+    expect(kotlin.contains('READ_SMS'), isFalse);
+    expect(kotlin.contains('content://sms'), isFalse);
+    expect(kotlin.contains('SMS_RECEIVED'), isTrue);
   });
 
   test('Kotlin package matches its directory and the Gradle namespace', () {
-    final kotlin =
-        File('android/app/src/main/kotlin/com/yash/xpenc/MainActivity.kt')
-            .readAsStringSync();
+    final kotlin = File(
+      'android/app/src/main/kotlin/com/kissoreo/expens/MainActivity.kt',
+    ).readAsStringSync();
     final gradle = File('android/app/build.gradle.kts').readAsStringSync();
 
-    expect(kotlin, contains('package com.yash.xpenc'));
-    expect(gradle, contains('namespace = "com.yash.xpenc"'));
-    expect(gradle, contains('applicationId = "com.yash.xpenc"'));
+    expect(kotlin, contains('package com.kissoreo.expens'));
+    expect(gradle, contains('namespace = "com.kissoreo.expens"'));
+    expect(gradle, contains('applicationId = "com.kissoreo.expens"'));
   });
 }

@@ -56,7 +56,7 @@ class SettingsScreen extends StatelessWidget {
             _ModuleTile(
               icon: Icons.verified_user_outlined,
               title: 'Permissions',
-              subtitle: 'What XPENC can access — turn each on or off',
+              subtitle: 'What Expens can access — turn each on or off',
               onTap: () => context.push('/more/settings/permissions'),
             ),
           _ModuleTile(
@@ -74,6 +74,12 @@ class SettingsScreen extends StatelessWidget {
                 ? 'Hold ➕ shortcuts, home screen widgets'
                 : 'Hold ➕ shortcuts',
             onTap: () => context.push('/more/settings/quick-actions'),
+          ),
+          _ModuleTile(
+            icon: Icons.storefront_outlined,
+            title: 'Merchants & rules',
+            subtitle: 'Aliases, merge, and category rules',
+            onTap: () => context.push('/more/merchants'),
           ),
           _ModuleTile(
             icon: Icons.storage_outlined,

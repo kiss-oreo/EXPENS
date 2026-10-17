@@ -714,7 +714,7 @@ typedef DebtSnapshot = ({
 });
 
 /// Everything owed right now, and what it asks of each month — the same
-/// numbers the XPENC Score's Debt load rule reads.
+/// numbers the Expens Score's Debt load rule reads.
 final debtSnapshotProvider = Provider<DebtSnapshot>((ref) {
   final input = ref.watch(xpencScoreInputProvider);
   final loans = input.loans.fold(

@@ -95,7 +95,7 @@ const guideSections = <GuideSection>[
       howToUse:
           'Open the account and tap the pencil next to its balance. '
           'Corrections never count as income or spending, but each one in '
-          'the last 30 days lowers the XPENC Score\'s Tracking habit — '
+          'the last 30 days lowers the Expens Score\'s Tracking habit — '
           'logging as you go keeps balances right on their own. Delete a '
           'correction to undo it.',
       location: 'More → Accounts → an account → ✎',
@@ -151,7 +151,7 @@ const guideSections = <GuideSection>[
           'out of the way. They stay full, live rows — same history — and '
           'come back to their list on their own once money is owed again.',
       howToUse:
-          'When a balance hits zero XPENC asks: Move to Settled, Archive, '
+          'When a balance hits zero Expens asks: Move to Settled, Archive, '
           'or Keep here. You can also hold a zero-balance row → Move to '
           'Settled, and hold a settled row → Move out of Settled.',
       location: 'Persons → ✓ in the top bar',
@@ -217,7 +217,7 @@ const guideSections = <GuideSection>[
           'Savings goals track progress toward a target amount, '
           'optionally auto-funded from an account. Loans track what you '
           'owe — and, once you tell it the interest rate, tenure and '
-          'start date, XPENC computes the EMI itself, splits every '
+          'start date, Expens computes the EMI itself, splits every '
           'payment into interest vs. principal automatically (a plain '
           'payment or a recurring EMI, either way), and shows how much '
           'paying extra actually saves you in interest.',

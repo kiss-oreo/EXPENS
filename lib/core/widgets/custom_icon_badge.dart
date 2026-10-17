@@ -5,7 +5,7 @@ import '../theme/glass.dart';
 import 'app_surfaces.dart';
 
 /// Renders a `TransactionRow.customIcon` value — see the doc on
-/// `Transactions.customIcon` for the two encodings this parses: an XPENC
+/// `Transactions.customIcon` for the two encodings this parses: an Expens
 /// icon-library pick (`"icon:<key>"`) or a raw emoji typed via the device's
 /// own keyboard.
 class CustomIconBadge extends StatelessWidget {

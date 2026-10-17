@@ -33,7 +33,7 @@ const whatsNewEntries = <WhatsNewEntry>[
   ),
   WhatsNewEntry(
     icon: Icons.phone_iphone_outlined,
-    title: 'XPENC on iPhone',
+    title: 'Expens on iPhone',
     location: 'xpenc.in/ios',
     description:
         'The same app, now on iPhone through SideStore or AltStore. A '
@@ -120,7 +120,7 @@ const whatsNewEntries = <WhatsNewEntry>[
     description:
         'Hold the ➕ and your quick actions spring out onto two arcs in the '
         'corner — slide your thumb to one and let go, and the ➕ swells '
-        'into its page. XPENC also runs at your screen’s full refresh '
+        'into its page. Expens also runs at your screen’s full refresh '
         'rate now (90/120 Hz where the phone supports it), with calmer, '
         'smoother motion throughout Glass. The top bar is now a floating '
         'glass capsule too: tabs scroll under it to the top of the screen, '
@@ -170,7 +170,7 @@ const whatsNewEntries = <WhatsNewEntry>[
     title: 'Settled, instead of vanishing',
     location: 'Persons → ✓ in the top bar',
     description:
-        'When someone\'s balance reaches zero, XPENC now asks: Move to '
+        'When someone\'s balance reaches zero, Expens now asks: Move to '
         'Settled, Archive, or Keep here — nothing disappears on its own. '
         'Settled people and groups keep their history and move back by '
         'themselves the moment money is owed again.',
@@ -202,7 +202,7 @@ const whatsNewEntries = <WhatsNewEntry>[
         'App says ₹100 in cash but your wallet has ₹75? Enter what you '
         'really have and the difference is saved as one "Correction" — no '
         'fake expense, and your history stays as it was. Corrections never '
-        'count as income or spending, but they lower the XPENC Score\'s '
+        'count as income or spending, but they lower the Expens Score\'s '
         'Tracking habit, so logging as you go still pays off.',
   ),
   WhatsNewEntry(

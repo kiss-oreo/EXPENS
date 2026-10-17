@@ -15,6 +15,7 @@ void main() {
       AppPermission.notifications.androidName: 'granted',
       AppPermission.camera.androidName: 'denied',
       AppPermission.contacts.androidName: 'blocked',
+      AppPermission.sms.androidName: 'denied',
     };
     calls = [];
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger

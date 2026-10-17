@@ -208,7 +208,7 @@ class _UssdPayScreenState extends State<UssdPayScreen> {
                         '1. Tap Dial *99# below — it copies the ID above and '
                         'opens the dialer in one go.\n'
                         '2. Your phone\'s own USSD menu takes over from here '
-                        '(XPENC can\'t read or answer it).\n'
+                        '(Expens can\'t read or answer it).\n'
                         '3. Choose Send Money → paste the ID → enter the '
                         'amount → enter your UPI PIN.\n'
                         '4. Come back here and log what you paid.',

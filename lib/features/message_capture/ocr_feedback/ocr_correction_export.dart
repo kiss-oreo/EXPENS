@@ -51,12 +51,12 @@ String buildOcrCorrectionsJson(List<OcrCorrectionRow> rows) {
 /// `about_screen.dart` already uses for external links — `canLaunchUrl`
 /// isn't reliable without extra `<queries>` manifest entries); falls back to
 /// the OS share sheet when the encoded `mailto:` URI is unsafely long or no
-/// mail app answers. XPENC's own code never makes a network call either
+/// mail app answers. Expens's own code never makes a network call either
 /// way — see the privacy note in the design spec.
 Future<void> sendOcrCorrections(List<OcrCorrectionRow> rows) async {
   if (rows.isEmpty) return;
   final body = buildOcrCorrectionsJson(rows);
-  final subject = 'XPENC OCR corrections (${rows.length})';
+  final subject = 'Expens OCR corrections (${rows.length})';
   final mailUri = Uri(
     scheme: 'mailto',
     path: AppInfo.feedbackEmail,

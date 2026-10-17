@@ -17,7 +17,7 @@ class MoreScreenLayoutSheet extends ConsumerWidget {
 
   static String _description(MoreScreenViewMode mode) => switch (mode) {
     MoreScreenViewMode.list => 'One row per item, with its subtitle — '
-        "XPENC's original look.",
+        "Expens's original look.",
     MoreScreenViewMode.cards => 'Two cards per row, more compact and '
         'visual.',
   };

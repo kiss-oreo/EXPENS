@@ -167,7 +167,7 @@ void main() {
     for (var i = 0; i < 6; i++) {
       await tester.pump(const Duration(milliseconds: 60));
     }
-    expect(find.text('Are you new to XPENC?'), findsOneWidget);
+    expect(find.text('Are you new to Expens?'), findsOneWidget);
 
     await tester.tap(find.text("I'm new here"));
     for (var i = 0; i < 6; i++) {
@@ -207,9 +207,9 @@ void main() {
     for (var i = 0; i < 6; i++) {
       await tester.pump(const Duration(milliseconds: 60));
     }
-    expect(find.text('Are you new to XPENC?'), findsOneWidget);
+    expect(find.text('Are you new to Expens?'), findsOneWidget);
 
-    await tester.tap(find.text('I already know XPENC'));
+    await tester.tap(find.text('I already know Expens'));
     for (var i = 0; i < 6; i++) {
       await tester.pump(const Duration(milliseconds: 60));
     }
@@ -409,7 +409,7 @@ void main() {
     await tester.runAsync(seed);
     await pump(tester, const StatsScreen());
     expect(tester.takeException(), isNull);
-    expect(find.text('XPENC SCORE'), findsOneWidget);
+    expect(find.text('EXPENS SCORE'), findsOneWidget);
     // One seeded income + two expenses is under the 5-entry minimum.
     expect(find.text('Not enough data yet'), findsOneWidget);
     await tester.scrollUntilVisible(
@@ -1204,7 +1204,7 @@ void main() {
   ) async {
     await pump(tester, const AboutScreen());
     expect(tester.takeException(), isNull);
-    expect(find.text('XPENC'), findsOneWidget);
+    expect(find.text('Expens'), findsOneWidget);
     expect(find.text('Version ${AppInfo.versionLabel}'), findsOneWidget);
     expect(find.text('@${AppInfo.githubHandle}'), findsOneWidget);
     expect(find.text('/in/${AppInfo.linkedinHandle}'), findsOneWidget);
@@ -1212,13 +1212,12 @@ void main() {
     expect(find.text(AppInfo.personalEmail), findsOneWidget);
     // Store + share buttons under the version pill (Play production launch).
     expect(find.text('Google Play'), findsOneWidget);
-    expect(find.text('Share XPENC'), findsOneWidget);
+    expect(find.text('Share Expens'), findsOneWidget);
     // Project links — the source-code link once pointed at a repo that
     // doesn't exist publicly; these keep the shipped links real. They sit
     // below the fold at phone size, so bring them into the viewport first.
-    await tester.scrollUntilVisible(find.text('PATILYASHH/XPENC'), 240);
-    expect(find.text('xpenc.in'), findsOneWidget);
-    expect(find.text('PATILYASHH/XPENC'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('kiss-oreo/EXPENS'), 240);
+    expect(find.text('kiss-oreo/EXPENS'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Latest release'), 240);
     await tester.ensureVisible(find.text('Latest release'));
     await tester.pumpAndSettle();

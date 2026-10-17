@@ -7,9 +7,9 @@
 #   4. gate every APK through tool/verify_apk.sh (the libsqlite3.so check)
 #   5. publish a GitHub Release with stable asset names + SHA-256 checksums
 #
-# The website's download buttons point at
-#   .../releases/latest/download/xpenc-arm64-v8a.apk
-# so the asset names below must never change.
+# Release assets are named expens-<abi>.apk. Signing secrets make the APK
+# an update to a previous Expens install; without them Gradle still builds
+# a release APK with the debug key.
 
 name: Release APK
 
@@ -91,9 +91,9 @@ jobs:
       - name: Rename to stable asset names
         run: |
           mkdir -p release
-          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk   release/xpenc-arm64-v8a.apk
-          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk release/xpenc-armeabi-v7a.apk
-          cp build/app/outputs/flutter-apk/app-x86_64-release.apk      release/xpenc-x86_64.apk
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk   release/expens-arm64-v8a.apk
+          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk release/expens-armeabi-v7a.apk
+          cp build/app/outputs/flutter-apk/app-x86_64-release.apk      release/expens-x86_64.apk
 
       - name: Verify APKs (libsqlite3.so gate)
         run: |
@@ -109,24 +109,24 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            release/xpenc-arm64-v8a.apk
-            release/xpenc-armeabi-v7a.apk
-            release/xpenc-x86_64.apk
+            release/expens-arm64-v8a.apk
+            release/expens-armeabi-v7a.apk
+            release/expens-x86_64.apk
             release/SHA256SUMS.txt
           generate_release_notes: true
           body: |
-            **XPENC — Money, tracked honestly.**
+            **Expens — Money, tracked honestly.** Fork of XPENC.
 
             | Platform | Your device | Download |
             |---|---|---|
-            | **(Android)** | Most phones (2017+) · ⭐ **Recommended** | [`xpenc-arm64-v8a.apk`](https://github.com/PATILYASHH/XPENC/releases/download/${{ github.ref_name }}/xpenc-arm64-v8a.apk) |
-            | **(Android)** | Older 32-bit phones | [`xpenc-armeabi-v7a.apk`](https://github.com/PATILYASHH/XPENC/releases/download/${{ github.ref_name }}/xpenc-armeabi-v7a.apk) |
-            | **(Android)** | Emulators | [`xpenc-x86_64.apk`](https://github.com/PATILYASHH/XPENC/releases/download/${{ github.ref_name }}/xpenc-x86_64.apk) |
-            | **(iOS)** | iPhone, iOS 15 or later · ⭐ **Recommended** | [`xpenc-ios.ipa`](https://github.com/PATILYASHH/XPENC/releases/download/${{ github.ref_name }}/xpenc-ios.ipa) — unsigned; sideload it with your own Apple ID |
+            | **(Android)** | Most phones (2017+) · ⭐ **Recommended** | [`expens-arm64-v8a.apk`](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/expens-arm64-v8a.apk) |
+            | **(Android)** | Older 32-bit phones | [`expens-armeabi-v7a.apk`](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/expens-armeabi-v7a.apk) |
+            | **(Android)** | Emulators | [`expens-x86_64.apk`](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/expens-x86_64.apk) |
 
-            Android is also on [Google Play](https://play.google.com/store/apps/details?id=com.yash.xpenc) and [F-Droid](https://f-droid.org/packages/com.yash.xpenc/).
-            iPhone setup, step by step: [xpenc.in/ios](https://xpenc.in/ios) — SideStore and AltStore are
-            coming soon. The iOS files are attached a few minutes after the Android ones.
+            Signing uses the repository keystore secrets. Without them the
+            release APK is still built, with the debug keystore, and is not
+            an update to a previously signed install.
 
             Verify your download against `SHA256SUMS.txt`.
-            Full history in [CHANGELOG.md](https://github.com/PATILYASHH/XPENC/blob/master/CHANGELOG.md).
+            History: [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/master/CHANGELOG.md).
+            Upstream: [XPENC](https://github.com/PATILYASHH/XPENC).

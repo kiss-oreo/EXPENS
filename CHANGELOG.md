@@ -8,6 +8,27 @@ Release process: see [docs/RELEASING.md](docs/RELEASING.md).
 
 ## [Unreleased]
 
+## [1.7.0] — 2026-10-17
+
+Fork of XPENC 1.6.4. The MIT license and Yash Patil's copyright are unchanged.
+See NOTICE.
+
+### Added
+- Merchants, aliases, merge, and Settings-editable category rules. “Apply to all from this merchant” rewrites matching income and expense rows.
+- Incoming SMS capture: a manifest `BroadcastReceiver` for `SMS_RECEIVED` and `RECEIVE_SMS` only. The inbox is never read. Raw SMS is stored only when “keep raw SMS for debugging” is on (off by default).
+- One parser class per bank (HDFC, SBI, ICICI, Axis, Kotak, PNB, Bank of Baroda, Canara, Union, IDFC, Yes, IPPB), registered in one list. Unknown formats are dropped, not crashed on.
+- Dedupe by bank reference, otherwise amount + account + minute + payee.
+- Parser test screen, pause switch, per-bank enable list, and a removed-payments restore list.
+- Accountant CSV, XLSX (category/month summary plus transactions) and a period PDF. Amounts are exact paise decimals.
+- Samples in `samples/sms_samples.txt` and unit tests for the parser, dedupe, categorisation, export formatting and the schema 80 migration.
+- The capture notification's Category action opens a category picker, including “apply to all from this merchant”. Delete still removes the payment. A tap on the notification opens the editor.
+- Merge merchants is its own screen. A rule's category can be changed or the rule deleted.
+
+### Changed
+- App name Expens, package `com.kissoreo.expens`, launcher mark is an E.
+- Version 1.7.0 (build 24). Schema 80 adds side tables without dropping XPENC rows.
+- JSON backup stays compatible with XPENC. The extra tables are omitted when a backup does not have them.
+
 ## [1.6.4] — 2026-10-10
 
 ### Added

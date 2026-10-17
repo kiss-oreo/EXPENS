@@ -43,12 +43,13 @@ void main() {
 
   group('developer identity', () {
     test('links point at the real profiles', () {
-      expect(AppInfo.githubUrl, 'https://github.com/PATILYASHH');
+      expect(AppInfo.githubUrl, 'https://github.com/kiss-oreo');
+      expect(AppInfo.upstreamRepoUrl, 'https://github.com/PATILYASHH/XPENC');
       expect(AppInfo.linkedinUrl, 'https://www.linkedin.com/in/patilyasshh/');
       expect(AppInfo.sponsorUrl, 'https://github.com/sponsors/PATILYASHH');
       // The public repo and website — a wrong link here ships to every phone.
-      expect(AppInfo.repoUrl, 'https://github.com/PATILYASHH/XPENC');
-      expect(AppInfo.websiteUrl, 'https://xpenc.in');
+      expect(AppInfo.repoUrl, 'https://github.com/kiss-oreo/EXPENS');
+      expect(AppInfo.websiteUrl, 'https://github.com/kiss-oreo/EXPENS');
     });
 
     test('every advertised link is an absolute https URL', () {

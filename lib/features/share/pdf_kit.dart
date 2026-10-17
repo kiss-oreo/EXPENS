@@ -484,7 +484,7 @@ class PdfKit {
     child: pw.Text(text, style: style(size: 9, color: muted)),
   );
 
-  /// The XPENC mark, drawn as vectors with the same geometry as
+  /// The Expens mark, drawn as vectors with the same geometry as
   /// `BrandMark` (lib/core/branding/brand_mark.dart): a squircle tile with
   /// the X knocked out of it, the ascending stroke on top of a seam.
   pw.Widget brandMark(

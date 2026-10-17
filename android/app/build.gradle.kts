@@ -21,7 +21,7 @@ val keystoreProperties = Properties().apply {
 }
 
 android {
-    namespace = "com.yash.xpenc"
+    namespace = "com.kissoreo.expens"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -42,7 +42,7 @@ android {
         // on it, so it can never be changed after the first upload — and to a
         // device a new applicationId is simply a different app, installed
         // side by side, with its own empty private data directory.
-        applicationId = "com.yash.xpenc"
+        applicationId = "com.kissoreo.expens"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

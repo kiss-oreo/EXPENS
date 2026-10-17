@@ -11,7 +11,7 @@ import 'parser/bank_message.dart';
 import 'parser/message_parser.dart';
 import 'parser/screenshot_parser.dart';
 
-/// What sharing one message into XPENC did.
+/// What sharing one message into Expens did.
 sealed class ShareIntakeResult {
   const ShareIntakeResult();
 }
@@ -41,7 +41,7 @@ class ShareIntakeRejected extends ShareIntakeResult {
   final String? recognizedText;
 }
 
-/// Bridges Android's Share sheet into message capture: the user picks XPENC
+/// Bridges Android's Share sheet into message capture: the user picks Expens
 /// from Share on a bank SMS (in Messages, WhatsApp, wherever it landed), and
 /// it's parsed and queued exactly like an auto-captured one — a
 /// Play-compliant substitute for the READ_SMS scan this app can't ship, one
@@ -81,7 +81,7 @@ class ShareIntakeService {
     void Function(ShareIntakeResult result) onResult,
   ) async {
     for (final f in files) {
-      // Only what the manifest's intent-filter offers XPENC for is ever
+      // Only what the manifest's intent-filter offers Expens for is ever
       // routed here (text/plain or image/*); this switch is defence in
       // depth, not the actual gate.
       switch (f.type) {

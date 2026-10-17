@@ -243,7 +243,7 @@ class _CountryStepState extends State<CountryStep> {
             padding: const EdgeInsets.fromLTRB(8, 12, 8, 24),
             child: Text(
               'Your country sets your parent currency — every total '
-              'in XPENC is shown in it. You can change it later in '
+              'in Expens is shown in it. You can change it later in '
               'Settings.',
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: cs.onSurfaceVariant,

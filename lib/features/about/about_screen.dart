@@ -62,7 +62,7 @@ class AboutScreen extends StatelessWidget {
                     builder: (buttonContext) => OutlinedButton.icon(
                       onPressed: () => _shareApp(buttonContext),
                       icon: const AppIcon(Icons.share_rounded, size: 20),
-                      label: const Text('Share XPENC'),
+                      label: const Text('Share ${AppInfo.name}'),
                     ),
                   ),
                 ),
@@ -203,14 +203,14 @@ class AboutScreen extends StatelessWidget {
                   _LinkTile(
                     icon: Icons.language_rounded,
                     label: 'Website',
-                    value: 'xpenc.in',
+                    value: 'GitHub',
                     url: AppInfo.websiteUrl,
                   ),
                   Divider(height: 1, indent: 60, color: cs.outline),
                   _LinkTile(
                     icon: Icons.code_rounded,
                     label: 'Source code',
-                    value: 'PATILYASHH/XPENC',
+                    value: 'kiss-oreo/EXPENS',
                     url: AppInfo.repoUrl,
                   ),
                   Divider(height: 1, indent: 60, color: cs.outline),
@@ -223,7 +223,7 @@ class AboutScreen extends StatelessWidget {
                   Divider(height: 1, indent: 60, color: cs.outline),
                   _LinkTile(
                     icon: Icons.share_rounded,
-                    label: 'Share XPENC',
+                    label: 'Share ${AppInfo.name}',
                     value: 'Send the Play Store link to a friend',
                     onTap: () => _shareApp(context),
                   ),

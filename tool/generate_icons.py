@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+"""STOPPED. This script still draws the old XPENC X and needs Pillow.
+
+The shipped launcher is the Expens E, written by a stdlib rasteriser.
+Do not run this file until it draws that E — it would overwrite the icons.
+"""
+raise SystemExit(
+    "tool/generate_icons.py still draws the XPENC X. "
+    "The launcher is the Expens E. Do not run this until the script is updated."
+)
+
 """Generate every XPENC brand asset from one geometric definition.
 
     python tool/generate_icons.py

@@ -510,9 +510,9 @@ class _ActionButtons extends ConsumerWidget {
                       payeeUpiId: myUpiId!,
                       payeeName: (myUpiName?.trim().isNotEmpty ?? false)
                           ? myUpiName!.trim()
-                          : 'XPENC user',
+                          : 'Expens user',
                       amount: balance,
-                      note: 'Requested via XPENC',
+                      note: 'Requested via Expens',
                     ),
                   ),
                 if (paypalEnabled)
@@ -534,7 +534,7 @@ class _ActionButtons extends ConsumerWidget {
                     attempt: () => VenmoLauncher.launch(
                       username: myVenmo!,
                       amount: balance,
-                      note: 'Requested via XPENC',
+                      note: 'Requested via Expens',
                     ),
                   ),
                 if (cashappEnabled)
@@ -578,7 +578,7 @@ class _ActionButtons extends ConsumerWidget {
                       payeeUpiId: person.upiId!,
                       payeeName: person.name,
                       amount: balance.abs,
-                      note: 'Settlement via XPENC',
+                      note: 'Settlement via Expens',
                     ),
                   ),
                 if (paypalEnabled)
@@ -600,7 +600,7 @@ class _ActionButtons extends ConsumerWidget {
                     attempt: () => VenmoLauncher.launch(
                       username: person.venmo!,
                       amount: balance.abs,
-                      note: 'Settlement via XPENC',
+                      note: 'Settlement via Expens',
                     ),
                   ),
                 if (cashappEnabled)

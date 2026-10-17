@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/branding/app_info.dart';
 import '../../core/platform/platform_features.dart';
 import '../../core/branding/brand_mark.dart';
 import '../../core/countries.dart';
@@ -467,7 +468,7 @@ class _PathChoiceStep extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Are you new to XPENC?',
+            'Are you new to ${AppInfo.name}?',
             style: theme.textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.w700,
               height: 1.2,
@@ -485,13 +486,13 @@ class _PathChoiceStep extends StatelessWidget {
           _ChoiceCard(
             icon: Icons.auto_awesome_outlined,
             title: "I'm new here",
-            subtitle: 'Show me a quick tour of how XPENC works.',
+            subtitle: 'Show me a quick tour of how ${AppInfo.name} works.',
             onTap: () => onChoose(_UserPath.newUser),
           ),
           const SizedBox(height: 14),
           _ChoiceCard(
             icon: Icons.check_circle_outline_rounded,
-            title: 'I already know XPENC',
+            title: 'I already know ${AppInfo.name}',
             subtitle: 'Skip the tour, and restore a backup if I have one.',
             onTap: () => onChoose(_UserPath.oldUser),
           ),
@@ -874,7 +875,7 @@ class _StartStep extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             'Add an account from the Accounts tab, or just log your first '
-            'transaction — XPENC is ready whenever you are.',
+            'transaction — Expens is ready whenever you are.',
             style: theme.textTheme.bodyLarge?.copyWith(
               color: cs.onSurfaceVariant,
               height: 1.4,
@@ -906,7 +907,7 @@ class _RestoreStep extends StatelessWidget {
       onSkip: restoring ? null : onSkip,
       title: 'Restore your data?',
       subtitle:
-          'If you have an XPENC backup on this phone, restore it now — or '
+          'If you have an Expens backup on this phone, restore it now — or '
           'skip and start fresh.',
       rows: [
         _FeatureRow(

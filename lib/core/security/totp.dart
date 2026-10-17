@@ -19,10 +19,10 @@ class Totp {
   /// carries no `algorithm` param: mainstream authenticator apps ignore it
   /// and always compute SHA1 regardless, so omitting it can't cause a
   /// mismatch with an app that doesn't honor it.
-  static String provisioningUri(String secret, {String label = 'XPENC'}) {
+  static String provisioningUri(String secret, {String label = 'Expens'}) {
     final query = {
       'secret': secret,
-      'issuer': 'XPENC',
+      'issuer': 'Expens',
       'digits': '6',
       'period': '$_stepSeconds',
     }.entries.map((e) => '${e.key}=${Uri.encodeComponent(e.value)}').join('&');

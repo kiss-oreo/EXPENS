@@ -1,4 +1,4 @@
-package com.yash.xpenc
+package com.kissoreo.expens
 
 import android.os.Build
 import android.os.Bundle
@@ -10,7 +10,7 @@ import io.flutter.plugin.common.MethodChannel
 private const val SCREEN_SECURITY_CHANNEL = "xpenc/screen_security"
 
 /**
- * Host activity for the XPENC Flutter app.
+ * Host activity for the Expens Flutter app.
  *
  * SMS capture — paused, not deleted
  * ---------------------------------
@@ -91,6 +91,7 @@ class MainActivity : FlutterFragmentActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         permissions.attach(flutterEngine.dartExecutor.binaryMessenger)
+        SmsCaptureEvents.attach(this, flutterEngine.dartExecutor.binaryMessenger)
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             SCREEN_SECURITY_CHANNEL,

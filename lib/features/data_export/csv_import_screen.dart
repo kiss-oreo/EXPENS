@@ -11,6 +11,7 @@ import '../../core/money.dart';
 import '../../core/widgets/app_surfaces.dart';
 import '../../data/providers.dart';
 import '../../data/tables.dart';
+import '../merchants/merchant_store.dart';
 import 'csv_import.dart';
 import '../../core/widgets/nav_bar_inset.dart';
 
@@ -206,13 +207,17 @@ class _CsvImportScreenState extends ConsumerState<CsvImportScreen> {
       }
 
       try {
-        await db.addTransaction(
+        final id = await db.addTransaction(
           type: type,
           amount: amount.abs,
           accountId: accountId,
           categoryId: categoryId,
           date: row.date!,
           note: row.note,
+        );
+        await MerchantStore(db).setTxExtra(
+          transactionId: id,
+          source: 'IMPORT',
         );
         imported++;
       } on ArgumentError {

@@ -8,6 +8,10 @@ import 'package:share_plus/share_plus.dart';
 import '../../core/platform/platform_features.dart';
 import '../../data/database.dart';
 import 'app_folder_backups.dart';
+import 'export_format.dart';
+import 'export_rows.dart';
+import 'period_statement_pdf.dart';
+import 'xlsx_writer.dart';
 import 'report_pdf.dart';
 import 'statement_pdf.dart';
 
@@ -271,7 +275,7 @@ class BackupService {
       throw ArgumentError('That file is not valid JSON.');
     }
     if (decoded is! Map<String, dynamic>) {
-      throw ArgumentError('That file is not an XPENC backup.');
+      throw ArgumentError('That file is not an Expens backup.');
     }
     await _db.importAll(decoded);
   }
@@ -427,6 +431,49 @@ class BackupService {
   }
 
   // ── Export ────────────────────────────────────────────────────────────────
+
+  Future<File> writeAccountantCsv({ExportFilter filter = const ExportFilter()}) async {
+    final rows = await loadExportRows(_db, filter: filter);
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File(
+      '${dir.path}/expens-transactions-${_stamp(DateTime.now())}.csv',
+    );
+    await file.writeAsString(exportCsv(rows), flush: true);
+    return file;
+  }
+
+  Future<File> writeXlsx({ExportFilter filter = const ExportFilter()}) async {
+    final rows = await loadExportRows(_db, filter: filter);
+    final bytes = buildWorkbook(summary: summaryTotals(rows), transactions: rows);
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File(
+      '${dir.path}/expens-transactions-${_stamp(DateTime.now())}.xlsx',
+    );
+    await file.writeAsBytes(bytes, flush: true);
+    return file;
+  }
+
+  Future<File> writePeriodPdf({
+    required DateTime start,
+    required DateTime end,
+    ExportFilter? filter,
+  }) async {
+    final rows = await loadExportRows(
+      _db,
+      filter: filter ?? ExportFilter(start: start, endInclusive: end),
+    );
+    final bytes = await buildPeriodStatementPdf(
+      start: start,
+      end: end,
+      rows: rows,
+    );
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File(
+      '${dir.path}/expens-statement-${_stamp(DateTime.now())}.pdf',
+    );
+    await file.writeAsBytes(bytes, flush: true);
+    return file;
+  }
 
   Future<File> writeCsv() async {
     final csv = await _db.transactionsCsv();

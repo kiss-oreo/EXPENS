@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/widgets/app_surfaces.dart';
 import '../../data/providers.dart';
 
-/// How long XPENC may sit backgrounded before the next resume asks for the
+/// How long Expens may sit backgrounded before the next resume asks for the
 /// PIN again. See GitHub #60.
 class PinTimeoutSheet extends ConsumerWidget {
   const PinTimeoutSheet({super.key});
@@ -47,7 +47,7 @@ class PinTimeoutSheet extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
             child: Text(
-              'How long XPENC may sit in the background before it asks for '
+              'How long Expens may sit in the background before it asks for '
               'your PIN again.',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: cs.onSurfaceVariant,

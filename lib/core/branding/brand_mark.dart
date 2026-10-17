@@ -1,11 +1,10 @@
 import 'dart:math' as math;
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
 import 'app_info.dart';
 
-/// The XPENC mark, drawn rather than shipped as an asset.
+/// The Expens mark, drawn rather than shipped as an asset.
 ///
 /// The geometry below is the same definition `tool/generate_icons.py` rasterises
 /// into the launcher icons — the numbers are duplicated, not shared, because one
@@ -31,7 +30,7 @@ class BrandGeometry {
   static const inset = 0.02;
 }
 
-/// A squircle tile with the X knocked into it.
+/// A squircle tile with an E knocked into it.
 ///
 /// Defaults invert with the theme — a black tile in light mode, a white tile in
 /// dark — so the mark always sits at full contrast against the page. Pass [tile]
@@ -127,50 +126,31 @@ class _MarkPainter extends CustomPainter {
   static double _copySignPow(double v, double e) =>
       math.pow(v.abs(), e).toDouble() * (v.isNegative ? -1 : 1);
 
-  /// `(descending − widenedAscending) ∪ ascending`, which is what carves the
-  /// seam and puts the ascending stroke visually on top.
+  /// A capital E: a spine and three bars. Same optical weight as the old X
+  /// so the tile still reads at 16 dp.
   Path _mark(Size size) {
-    final t = size.width * BrandGeometry.thickness;
-    final gap = size.width * BrandGeometry.seam;
+    final t = size.width * 0.11;
+    final left = size.width * 0.30;
+    final right = size.width * 0.70;
+    final top = size.width * 0.30;
+    final bottom = size.width * 0.70 - t;
+    final mid = size.width * 0.5 - t / 2;
+    final radius = Radius.circular(t / 2);
 
-    final descending = _bar(size, math.pi / 4, t);
-    final ascending = _bar(size, -math.pi / 4, t);
-    final ascendingWide = _bar(size, -math.pi / 4, t + 2 * gap);
+    Path bar(double x, double y, double w, double h) => Path()
+      ..addRRect(
+        RRect.fromRectAndRadius(Rect.fromLTWH(x, y, w, h), radius),
+      );
 
+    final spine = bar(left, top, t, bottom + t - top);
+    final cap = bar(left, top, right - left, t);
+    final middle = bar(left, mid, (right - left) * 0.72, t);
+    final foot = bar(left, bottom, right - left, t);
     return Path.combine(
       PathOperation.union,
-      Path.combine(PathOperation.difference, descending, ascendingWide),
-      ascending,
+      Path.combine(PathOperation.union, spine, cap),
+      Path.combine(PathOperation.union, middle, foot),
     );
-  }
-
-  /// A stadium of the brand's bar length, rotated about the canvas centre.
-  Path _bar(Size size, double angle, double thickness) {
-    final c = Offset(size.width / 2, size.height / 2);
-    final rect = Rect.fromCenter(
-      center: c,
-      width: size.width * BrandGeometry.barLength,
-      height: thickness,
-    );
-    final bar = Path()
-      ..addRRect(RRect.fromRectAndRadius(rect, Radius.circular(thickness / 2)));
-    return bar.transform(_rotationAbout(angle, c));
-  }
-
-  /// Column-major 4×4 rotation about [c]. Hand-rolled to keep this file free of
-  /// a `vector_math` import for what is ultimately six numbers.
-  static Float64List _rotationAbout(double angle, Offset c) {
-    final cos = math.cos(angle), sin = math.sin(angle);
-    final m = Float64List(16);
-    m[0] = cos;
-    m[1] = sin;
-    m[4] = -sin;
-    m[5] = cos;
-    m[10] = 1;
-    m[12] = c.dx - c.dx * cos + c.dy * sin;
-    m[13] = c.dy - c.dx * sin - c.dy * cos;
-    m[15] = 1;
-    return m;
   }
 
   @override

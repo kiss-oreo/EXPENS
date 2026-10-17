@@ -25,7 +25,13 @@ import '../../features/dashboard/dashboard_screen.dart';
 import '../../features/data_export/backup_screen.dart';
 import '../../features/data_export/csv_import_screen.dart';
 import '../../features/data_export/download_data_screen.dart';
+import '../../features/merchants/merge_merchants_screen.dart';
+import '../../features/merchants/merchants_screen.dart';
+import '../../features/message_capture/capture_category_screen.dart';
+import '../../features/message_capture/ignored_payments_screen.dart';
 import '../../features/message_capture/message_capture_screen.dart';
+import '../../features/message_capture/parser_test_screen.dart';
+import '../../features/message_capture/sms_permission_screen.dart';
 import '../../features/message_capture/ocr_feedback/ocr_correction_capture_screen.dart';
 import '../../features/message_capture/ocr_feedback/ocr_correction_screen.dart';
 import '../../features/message_capture/review_inbox_screen.dart';
@@ -92,7 +98,7 @@ void showAppSnackBar(String message, {SnackBarAction? action}) {
     ..showSnackBar(SnackBar(content: Text(message), action: action));
 }
 
-/// The raw text ML Kit recognised off a shared screenshot XPENC couldn't
+/// The raw text ML Kit recognised off a shared screenshot Expens couldn't
 /// turn into a transaction. A rejected screenshot parse never reaches
 /// `PendingTxns`, so without this there is no way to see what OCR actually
 /// read — see `ShareIntakeRejected.recognizedText` and GitHub #25.
@@ -306,6 +312,34 @@ final appRouter = GoRouter(
                   builder: (_, _) => const MessageCaptureScreen(),
                   routes: [
                     GoRoute(
+                      path: 'parser-test',
+                      parentNavigatorKey: _rootKey,
+                      builder: (_, _) => const ParserTestScreen(),
+                    ),
+                    GoRoute(
+                      path: 'ignored',
+                      parentNavigatorKey: _rootKey,
+                      builder: (_, _) => const IgnoredPaymentsScreen(),
+                    ),
+                    GoRoute(
+                      path: 'permission',
+                      parentNavigatorKey: _rootKey,
+                      builder: (_, _) => const SmsPermissionScreen(),
+                    ),
+                    GoRoute(
+                      path: 'category/:id',
+                      parentNavigatorKey: _rootKey,
+                      builder: (_, state) {
+                        final id = int.tryParse(state.pathParameters['id'] ?? '');
+                        if (id == null) {
+                          return const Scaffold(
+                            body: Center(child: Text('Missing payment.')),
+                          );
+                        }
+                        return CaptureCategoryScreen(transactionId: id);
+                      },
+                    ),
+                    GoRoute(
                       path: 'ocr-feedback',
                       parentNavigatorKey: _rootKey,
                       builder: (_, _) => const OcrCorrectionScreen(),
@@ -316,6 +350,22 @@ final appRouter = GoRouter(
                           builder: (_, _) => const OcrCorrectionCaptureScreen(),
                         ),
                       ],
+                    ),
+                  ],
+                ),
+                GoRoute(
+                  path: 'merchants',
+                  parentNavigatorKey: _rootKey,
+                  builder: (_, _) => const MerchantsScreen(),
+                  routes: [
+                    GoRoute(
+                      path: 'merge',
+                      parentNavigatorKey: _rootKey,
+                      builder: (_, state) => MergeMerchantsScreen(
+                        initialKeepId: int.tryParse(
+                          state.uri.queryParameters['keep'] ?? '',
+                        ),
+                      ),
                     ),
                   ],
                 ),

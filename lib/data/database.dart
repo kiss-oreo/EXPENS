@@ -15,6 +15,7 @@ import '../core/security/unlock_method.dart';
 import '../features/message_capture/parser/bank_message.dart';
 import '../features/message_capture/parser/message_parser.dart';
 import 'currency_conversion.dart';
+import 'ledger_extensions.dart';
 import 'tables.dart';
 
 part 'database.g.dart';
@@ -199,7 +200,7 @@ class AppDatabase extends _$AppDatabase {
       );
 
   @override
-  int get schemaVersion => 79;
+  int get schemaVersion => 80;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -207,6 +208,7 @@ class AppDatabase extends _$AppDatabase {
       await m.createAll();
       await _seed();
       await _seedSenderRules();
+      await ensureLedgerExtensions(this);
     },
     onUpgrade: (m, from, to) async {
       if (from < 2) {
@@ -734,6 +736,10 @@ class AppDatabase extends _$AppDatabase {
         // NCT — non-capturable transactions (GitHub #143).
         await _addColumnIfMissing(m, transactions, transactions.isNct);
       }
+      if (from < 80) {
+        // Expens merchants, capture extras, ignored payments. Additive only.
+        await ensureLedgerExtensions(this);
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
@@ -754,6 +760,10 @@ class AppDatabase extends _$AppDatabase {
       // `listId` to import (see `importAll`), which reintroduces the
       // exact orphaned shape the v17 migration repairs.
       await backfillShoppingListIds();
+      // Idempotent. Covers a database whose version was already 80 but whose
+      // extension tables were missing (a crashed migration, a rolled-back
+      // pragma). Never drops XPENC rows.
+      await ensureLedgerExtensions(this);
     },
   );
 
@@ -1183,7 +1193,9 @@ class AppDatabase extends _$AppDatabase {
     await delete(accounts).go();
     await delete(tags).go();
     await delete(currencyRates).go();
+    await deleteLedgerExtensions(this);
     await _seedDefaultAccountsAndCategories();
+    await ensureLedgerExtensions(this);
   });
 
   // ── Balance mechanics ─────────────────────────────────────────────────────
@@ -7028,6 +7040,7 @@ class AppDatabase extends _$AppDatabase {
       'pendingTxns': (await select(pendingTxns).get()).map(m).toList(),
       'budgetAlerts': (await select(budgetAlerts).get()).map(m).toList(),
       'settings': (await select(settings).get()).map(m).toList(),
+      ...(await exportLedgerExtensions(this)),
     };
   }
 
@@ -7044,7 +7057,7 @@ class AppDatabase extends _$AppDatabase {
       );
     }
     if (data['accounts'] is! List || data['transactions'] is! List) {
-      throw ArgumentError('This file is not an XPENC backup.');
+      throw ArgumentError('This file is not an Expens backup.');
     }
 
     List<Map<String, Object?>> rows(String key) =>
@@ -7093,6 +7106,7 @@ class AppDatabase extends _$AppDatabase {
     await transaction(() async {
       // Children first, or the deletes violate the foreign keys.
       // `person_entries` -> `transactions` -> `persons`, so that exact order.
+      await deleteLedgerExtensions(this);
       await delete(budgetAlerts).go();
       await delete(pendingTxns).go();
       await delete(merchantRules).go();
@@ -7217,6 +7231,7 @@ class AppDatabase extends _$AppDatabase {
       await load(transactionSplits, 'transactionSplits');
       await load(transactionLinks, 'transactionLinks');
       await load(shoppingItems, 'shoppingItems');
+      await importLedgerExtensions(this, data);
       await load(settings, 'settings');
 
       if (localTheme != null) {

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/branding/app_info.dart';
 import '../../core/money.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/app_surfaces.dart';
@@ -169,7 +170,7 @@ class XpencScoreCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'XPENC SCORE',
+                      '${AppInfo.name.toUpperCase()} SCORE',
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: cs.onSurfaceVariant,
                         letterSpacing: 0.8,
@@ -246,7 +247,7 @@ class XpencScoreScreen extends ConsumerWidget {
     final grade = result.grade;
 
     return Scaffold(
-      appBar: AppTopBar(title: const Text('XPENC Score')),
+      appBar: AppTopBar(title: const Text('Expens Score')),
       body: ledger.isLoading
           ? const StatsSectionLoader(height: 240)
           : ListView(

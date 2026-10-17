@@ -1,7 +1,11 @@
 
 <div align="center">
 
-<img src="branding/xpenc_banner.svg" width="640" alt="XPENC — Money, tracked honestly.">
+<img src="branding/xpenc_banner.svg" width="640" alt="Expens — Money, tracked honestly.">
+
+**Expens** is a fork of [XPENC](https://github.com/PATILYASHH/XPENC) by Yash Patil.
+The MIT license and that copyright are unchanged (see [NOTICE](NOTICE)).
+Package id: `com.kissoreo.expens`.
 
 [![F-Droid](https://img.shields.io/f-droid/v/com.yash.xpenc?label=F-Droid&logo=fdroid&logoColor=white&color=white&labelColor=black)](https://f-droid.org/packages/com.yash.xpenc/)
 [![Release](https://img.shields.io/github/v/release/PATILYASHH/XPENC?label=release&color=white&labelColor=black)](https://github.com/PATILYASHH/XPENC/releases/latest)

@@ -10,7 +10,7 @@ import 'settings_common.dart';
 import 'theme_picker_sheet.dart';
 
 /// General — currency, theme, font and layout. The settings that shape how
-/// XPENC looks and reads, independent of app mode or any one feature.
+/// Expens looks and reads, independent of app mode or any one feature.
 class GeneralSettingsScreen extends ConsumerWidget {
   const GeneralSettingsScreen({super.key});
 
@@ -201,8 +201,8 @@ class GeneralSettingsScreen extends ConsumerWidget {
                   leading: const AppIcon(Icons.sms_outlined),
                   title: const Text('Bank-SMS auto-capture'),
                   subtitle: Text(
-                    'Coming soon — removed for now so the app installs '
-                    'without a Play Protect block.',
+                    'Optional. Records the bank SMS that just arrived. '
+                    'The inbox is never read.',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: cs.onSurfaceVariant,
                     ),

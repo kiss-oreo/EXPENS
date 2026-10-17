@@ -11,7 +11,7 @@ import 'stats_sections.dart';
 import 'xpenc_score_screen.dart';
 import '../../core/widgets/nav_bar_inset.dart';
 
-/// The Stats hub: the XPENC Score up top, this month at a glance, then one
+/// The Stats hub: the Expens Score up top, this month at a glance, then one
 /// tile per [StatsModule] — each opens a focused screen (cash flow, spending,
 /// loans, people…) instead of one endless scroll. Every number is derived
 /// from the ledger, so transfers between your own accounts never register as

@@ -334,10 +334,10 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                     PlatformFeatures.durableBackupFolder
                         ? 'Backups live in Download/$backupAppFolder on this '
                               'phone — visible in any file manager, and kept '
-                              'even if XPENC itself is uninstalled. Moving to a '
+                              'even if Expens itself is uninstalled. Moving to a '
                               'new phone? Send that folder across, or export a '
                               'file here and use Import on the new phone.'
-                        : 'Backups are kept inside XPENC on this iPhone, so '
+                        : 'Backups are kept inside Expens on this iPhone, so '
                               'deleting the app deletes them too. Keep a copy '
                               'somewhere safe — Share one to Files or iCloud '
                               'Drive — and use Import on a new phone.',

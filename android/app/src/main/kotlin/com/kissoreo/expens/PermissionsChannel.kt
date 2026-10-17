@@ -1,4 +1,4 @@
-package com.yash.xpenc
+package com.kissoreo.expens
 
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -22,6 +22,7 @@ private val KNOWN = setOf(
     NOTIFICATIONS,
     "android.permission.CAMERA",
     "android.permission.READ_CONTACTS",
+    "android.permission.RECEIVE_SMS",
 )
 
 /**
@@ -93,7 +94,7 @@ class PermissionsChannel(private val activity: FragmentActivity) {
 
     private fun request(name: String?, result: MethodChannel.Result) {
         if (name == null || name !in KNOWN) {
-            result.error("unknown_permission", "Not a permission XPENC uses: $name", null)
+            result.error("unknown_permission", "Not a permission Expens uses: $name", null)
             return
         }
         if (name == NOTIFICATIONS && Build.VERSION.SDK_INT < 33) {

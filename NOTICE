@@ -1,0 +1,16 @@
+Expens
+Copyright (c) 2026 kiss-oreo
+
+This program is a fork of XPENC.
+
+XPENC
+Copyright (c) 2026 Yash Patil
+https://github.com/PATILYASHH/XPENC
+
+XPENC is licensed under the MIT License. That copyright notice and the
+license terms in LICENSE are preserved. Nothing in this fork is taken from
+a GPL project.
+
+The Expens name, package id (com.kissoreo.expens) and launcher icon are
+this fork's own. The ledger, themes and on-device architecture come from
+XPENC.

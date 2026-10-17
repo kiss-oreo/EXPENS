@@ -43,7 +43,7 @@ class MasterPhraseAttemptsSheet extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
             child: Text(
-              'How many wrong PINs in a row before XPENC stops accepting the '
+              'How many wrong PINs in a row before Expens stops accepting the '
               'PIN and asks for your master recovery phrase instead.',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: cs.onSurfaceVariant,

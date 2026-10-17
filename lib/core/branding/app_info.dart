@@ -10,7 +10,7 @@
 class AppInfo {
   const AppInfo._();
 
-  static const name = 'XPENC';
+  static const name = 'Expens';
   static const tagline = 'Money, tracked honestly.';
 
   /// Shown under the wordmark on the About screen.
@@ -19,8 +19,8 @@ class AppInfo {
       'on this device — nothing is ever uploaded.';
 
   // ── Version ────────────────────────────────────────────────────────────────
-  static const version = '1.6.4';
-  static const buildNumber = 23;
+  static const version = '1.7.0';
+  static const buildNumber = 24;
 
   /// `1.0.0 (build 1)` — the string a bug report should quote.
   static const versionLabel = '$version (build $buildNumber)';
@@ -29,8 +29,13 @@ class AppInfo {
   static const developer = 'Yash Patil';
   static const developerRole = 'Design & engineering';
 
-  static const githubHandle = 'PATILYASHH';
-  static const githubUrl = 'https://github.com/PATILYASHH';
+  static const githubHandle = 'kiss-oreo';
+  static const githubUrl = 'https://github.com/kiss-oreo';
+
+  /// Upstream author. Kept so the fork can credit XPENC without pretending
+  /// to be it.
+  static const upstreamAuthor = 'Yash Patil';
+  static const upstreamRepoUrl = 'https://github.com/PATILYASHH/XPENC';
 
   static const linkedinHandle = 'patilyasshh';
   static const linkedinUrl = 'https://www.linkedin.com/in/patilyasshh/';
@@ -47,10 +52,10 @@ class AppInfo {
 
   // ── Project ────────────────────────────────────────────────────────────────
   /// Where this build's source lives.
-  static const repoUrl = 'https://github.com/PATILYASHH/XPENC';
+  static const repoUrl = 'https://github.com/kiss-oreo/EXPENS';
 
   /// The project website — features, downloads, FAQ.
-  static const websiteUrl = 'https://xpenc.in';
+  static const websiteUrl = 'https://github.com/kiss-oreo/EXPENS';
 
   /// New issue with a template picker (bug / feature / bank support).
   static const issuesUrl = '$repoUrl/issues/new/choose';
@@ -59,7 +64,7 @@ class AppInfo {
   static const releasesUrl = '$repoUrl/releases/latest';
 
   /// Android application id — the same on Play and F-Droid.
-  static const packageId = 'com.yash.xpenc';
+  static const packageId = 'com.kissoreo.expens';
 
   /// Play Store listing. The `market://` form opens the Play Store app
   /// directly; the https one is the fallback and what gets shared.
@@ -77,7 +82,7 @@ class AppInfo {
   static const licenseName = 'MIT License';
   static const licenseUrl = '$repoUrl/blob/master/LICENSE';
 
-  static const copyright = '© 2026 Yash Patil';
+  static const copyright = '© 2026 Yash Patil. Forked as Expens.';
 
   // ── Community ──────────────────────────────────────────────────────────────
   static const instagramHandle = 'xpenc.in';

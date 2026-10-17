@@ -34,7 +34,7 @@ Future<void> importDataFromFile(
     // Deliberately not filtering by extension: some Android file managers
     // grey out `.json` under a custom filter, which would make a real backup
     // unpickable. `restoreFromContent` is the real gate — it rejects
-    // anything that isn't an XPENC backup with a clear message.
+    // anything that isn't an Expens backup with a clear message.
     picked = await FilePicker.platform.pickFiles(withData: true);
   } catch (e) {
     if (!context.mounted) return;
