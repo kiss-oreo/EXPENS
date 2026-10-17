@@ -20,6 +20,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   release:
@@ -68,8 +69,22 @@ jobs:
           if [ -z "$KEYSTORE_B64" ] || [ -z "$STORE_PASSWORD" ] || [ -z "$KEY_ALIAS" ]; then
             echo "No release keystore configured. APK will be debug-signed and can be sideloaded."
             rm -f android/key.properties
+            # A fresh runner has no debug keystore. Gradle refuses to sign
+            # without the standard file, alias and passwords.
+            mkdir -p "$HOME/.android"
+            if [ ! -f "$HOME/.android/debug.keystore" ]; then
+              keytool -genkeypair -v \
+                -keystore "$HOME/.android/debug.keystore" \
+                -storepass android \
+                -alias androiddebugkey \
+                -keypass android \
+                -keyalg RSA -keysize 2048 -validity 10000 \
+                -dname "CN=Android Debug,O=Android,C=US"
+            fi
+            echo "debug" > /tmp/signing-mode.txt
             exit 0
           fi
+          echo "release" > /tmp/signing-mode.txt
           echo "$KEYSTORE_B64" | base64 -d > "$GITHUB_WORKSPACE/android/xpenc-release.jks"
           cat > android/key.properties <<EOF
           storePassword=${STORE_PASSWORD}
@@ -88,12 +103,23 @@ jobs:
 
       - name: Build release APKs
         run: |
+          set +e
           mkdir -p release
-          flutter build apk --release
+          flutter build apk --release > /tmp/apk-build.log 2>&1
+          code=$?
+          cat /tmp/apk-build.log
+          if [ "$code" -ne 0 ]; then
+            exit "$code"
+          fi
           # Copy before the split build. A later Gradle invocation can clear
           # flutter-apk/ and drop the universal APK.
           cp build/app/outputs/flutter-apk/app-release.apk release/expens.apk
-          flutter build apk --release --split-per-abi
+          flutter build apk --release --split-per-abi >> /tmp/apk-build.log 2>&1
+          code=$?
+          tail -n 80 /tmp/apk-build.log
+          if [ "$code" -ne 0 ]; then
+            exit "$code"
+          fi
           cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk   release/expens-arm64-v8a.apk
           cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk release/expens-armeabi-v7a.apk
           cp build/app/outputs/flutter-apk/app-x86_64-release.apk      release/expens-x86_64.apk
@@ -112,10 +138,46 @@ jobs:
           done
 
       - name: Analyze
-        run: flutter analyze
+        run: |
+          set +e
+          flutter analyze > /tmp/analyze.log 2>&1
+          code=$?
+          cat /tmp/analyze.log
+          exit "$code"
 
       - name: Test
-        run: flutter test
+        run: |
+          set +e
+          flutter test > /tmp/test.log 2>&1
+          code=$?
+          cat /tmp/test.log
+          exit "$code"
+
+      - name: Publish failure log
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            if [ -f /tmp/signing-mode.txt ]; then
+              echo "Signing mode: $(cat /tmp/signing-mode.txt)"
+              echo
+            fi
+            for f in /tmp/apk-build.log /tmp/analyze.log /tmp/test.log; do
+              if [ -f "$f" ]; then
+                echo "## $f"
+                echo '```text'
+                tail -n 180 "$f" | sed 's/```/` ` `/g'
+                echo '```'
+                echo
+              fi
+            done
+          } > /tmp/issue.md
+          python3 -c 'from pathlib import Path; p=Path("/tmp/issue.md"); t=p.read_text(errors="replace"); p.write_text(t[:60000]+("\n...truncated" if len(t)>60000 else ""))'
+          gh issue create --title "Release job failed ${GITHUB_RUN_ID}" --body-file /tmp/issue.md
+          cat /tmp/issue.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Checksums
         working-directory: release
