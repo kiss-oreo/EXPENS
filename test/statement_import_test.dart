@@ -96,7 +96,7 @@ void main() {
     expect(rows, hasLength(3));
 
     final sms = rows.singleWhere((row) => row.id == smsId);
-    expect(sms.payee, 'Swiggy Instamart');
+    expect(sms.payee, 'Swiggy');
     expect(sms.categoryId, food);
     final smsExtra = await db.customSelect(
       'SELECT source FROM tx_extras WHERE transaction_id = ?',
@@ -119,5 +119,109 @@ void main() {
     ).getSingle();
     expect(importedExtra.read<String>('source'), 'IMPORT_PDF');
     expect(importedExtra.read<String>('bank_reference'), '777777777777');
+  });
+
+  test('a match fills empty fields and never overwrites user-set ones', () async {
+    final cash = (await db.watchAccounts().first).single;
+    final hdfc = await db.addAccount(
+      name: 'HDFC',
+      type: AccountType.bank,
+      colorValue: 0xFF1A237E,
+      iconKey: 'bank',
+      openingBalance: const Money(0),
+      last4: '1234',
+    );
+    final food = await db.addCategory(
+      name: 'Food',
+      kind: CategoryKind.expense,
+      colorValue: 0xFF000000,
+      iconKey: 'food',
+    );
+    final travel = await db.addCategory(
+      name: 'Travel',
+      kind: CategoryKind.expense,
+      colorValue: 0xFF0000FF,
+      iconKey: 'travel',
+    );
+    final home = await db.addTag(name: 'home', colorValue: 0xFF006600);
+    final store = MerchantStore(db);
+    final irctc = await store.upsertFromRaw('IRCTC');
+    await store.setDefaultCategory(irctc, travel);
+    final cafe = await store.upsertFromRaw('Cafe');
+    await store.setDefaultCategory(cafe, food);
+
+    final setId = await db.addTransaction(
+      type: TxType.expense,
+      amount: const Money(25050),
+      accountId: cash.id,
+      categoryId: food,
+      date: DateTime(2026, 10, 12, 14, 30),
+      payee: 'Swiggy',
+      note: 'my note',
+    );
+    await db.setTransactionTags(setId, {home});
+    await store.setTxExtra(
+      transactionId: setId,
+      bankReference: '123456789012',
+      source: 'MANUAL',
+    );
+
+    final emptyId = await db.addTransaction(
+      type: TxType.expense,
+      amount: const Money(4000),
+      accountId: cash.id,
+      date: DateTime(2026, 10, 2, 9),
+    );
+    await store.setTxExtra(
+      transactionId: emptyId,
+      bankReference: '999999999999',
+      source: 'SMS',
+      needsReview: true,
+    );
+
+    final service = StatementImportService(db);
+    final result = await service.save(
+      await service.preview([
+        StatementRow(
+          app: StatementApp.gpay,
+          date: DateTime(2026, 10, 12, 14, 30),
+          amountPaise: 25050,
+          direction: StatementDirection.debit,
+          merchant: 'IRCTC',
+          reference: '123456789012',
+          accountLast4: '1234',
+        ),
+        StatementRow(
+          app: StatementApp.phonepe,
+          date: DateTime(2026, 10, 2, 9),
+          amountPaise: 4000,
+          direction: StatementDirection.debit,
+          merchant: 'Cafe',
+          reference: '999999999999',
+          accountLast4: '1234',
+        ),
+      ]),
+    );
+    expect(result.inserted, 0);
+    expect(result.merged, 2);
+
+    final kept = await (db.select(db.transactions)
+          ..where((t) => t.id.equals(setId)))
+        .getSingle();
+    expect(kept.accountId, cash.id);
+    expect(kept.accountId, isNot(hdfc));
+    expect(kept.categoryId, food);
+    expect(kept.payee, 'Swiggy');
+    expect(kept.note, 'my note');
+    expect(await db.tagIdsForTransaction(setId), [home]);
+
+    final filled = await (db.select(db.transactions)
+          ..where((t) => t.id.equals(emptyId)))
+        .getSingle();
+    expect(filled.accountId, cash.id);
+    expect(filled.payee, 'Cafe');
+    expect(filled.note, 'PhonePe');
+    expect(filled.categoryId, food);
+    expect(await db.tagIdsForTransaction(emptyId), isEmpty);
   });
 }

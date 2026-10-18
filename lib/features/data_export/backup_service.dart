@@ -454,18 +454,19 @@ class BackupService {
   }
 
   Future<File> writePeriodPdf({
-    required DateTime start,
-    required DateTime end,
+    DateTime? start,
+    DateTime? end,
     ExportFilter? filter,
   }) async {
-    final rows = await loadExportRows(
-      _db,
-      filter: filter ?? ExportFilter(start: start, endInclusive: end),
-    );
+    final applied =
+        filter ?? ExportFilter(start: start, endInclusive: end);
+    final rows = await loadExportRows(_db, filter: applied);
+    final range = applied.displayRange(rows, end ?? DateTime.now());
     final bytes = await buildPeriodStatementPdf(
-      start: start,
-      end: end,
+      start: range.start,
+      end: range.end,
       rows: rows,
+      subtitle: applied.describe(),
     );
     final dir = await getApplicationDocumentsDirectory();
     final file = File(

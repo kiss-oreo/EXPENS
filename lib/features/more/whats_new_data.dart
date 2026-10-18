@@ -56,11 +56,12 @@ const whatsNewEntries = <WhatsNewEntry>[
   ),
   WhatsNewEntry(
     icon: Icons.pause_circle_outline,
-    title: 'Capture paused is visible',
+    title: 'Capture status',
     location: 'Home',
     description:
-        'If SMS capture is paused, or incoming-SMS permission is off, a '
-        'banner says so. A notification is posted only when notifications '
-        'are on.',
+        'A fresh install says Not set up, not paused. A warning appears '
+        'only if you paused capture, or if incoming-SMS permission was '
+        'revoked. The widget label is checked about every six hours, '
+        'without reading a message.',
   ),
 ];

@@ -28,8 +28,8 @@ class StatementSaveResult {
 }
 
 /// Preview and save. Dedupe is UPI reference, then amount + date + payee.
-/// A duplicate merges a richer payee or a missing reference into the existing
-/// row. It never creates a second row. New rows are `source = IMPORT_PDF`.
+/// A match only fills fields that are still empty. It never creates a second
+/// row. New rows are `source = IMPORT_PDF`.
 class StatementImportService {
   StatementImportService(this.db);
 
@@ -131,7 +131,8 @@ class StatementImportService {
     );
   }
 
-  /// Returns true when an existing row was updated. Never inserts.
+  /// Returns true when an empty field was filled. Never inserts, and never
+  /// overwrites a payee, category, account, note, or tag the user already set.
   Future<bool> _merge(int id, StatementRow row) async {
     final existing = await (db.select(db.transactions)
           ..where((t) => t.id.equals(id)))
@@ -154,15 +155,29 @@ class StatementImportService {
         changed = true;
       }
     }
-    final richer = _richerPayee(existing.payee, row.merchant);
-    if (richer != null) {
+    if (_blank(existing.payee) && row.merchant.trim().isNotEmpty) {
+      final payee = row.merchant.trim();
       await (db.update(db.transactions)..where((t) => t.id.equals(id))).write(
         TransactionsCompanion(
-          payee: Value(richer),
+          payee: Value(payee),
           updatedAt: Value(DateTime.now()),
         ),
       );
-      await store.upsertFromRaw(richer);
+      await store.upsertFromRaw(payee);
+      changed = true;
+    }
+    final incomingNote = switch (row.app) {
+      StatementApp.gpay => 'Google Pay',
+      StatementApp.phonepe => 'PhonePe',
+      null => '',
+    };
+    if (_blank(existing.note) && incomingNote.isNotEmpty) {
+      await (db.update(db.transactions)..where((t) => t.id.equals(id))).write(
+        TransactionsCompanion(
+          note: Value(incomingNote),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
       changed = true;
     }
     final reference = row.reference?.trim();
@@ -202,18 +217,7 @@ class StatementImportService {
     return MerchantStore(db).unassignedAccountId();
   }
 
-  String? _richerPayee(String? existing, String incoming) {
-    final next = incoming.trim();
-    if (next.isEmpty) return null;
-    final current = (existing ?? '').trim();
-    if (current.isEmpty) return next;
-    if (!_related(current, next)) return null;
-    if (MerchantNames.canonical(next).length <=
-        MerchantNames.canonical(current).length) {
-      return null;
-    }
-    return next;
-  }
+  bool _blank(String? value) => value == null || value.trim().isEmpty;
 
   bool _related(String a, String b) {
     if (MerchantNames.sameMerchant(a, b)) return true;

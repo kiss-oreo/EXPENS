@@ -7,6 +7,7 @@ import '../../core/widgets/app_surfaces.dart';
 import '../../core/widgets/nav_bar_inset.dart';
 import '../../data/ledger_extensions.dart';
 import '../../data/providers.dart';
+import 'capture_health.dart';
 import 'sms_capture_bridge.dart';
 
 final keepRawSmsProvider = FutureProvider<bool>((ref) {
@@ -28,6 +29,7 @@ class MessageCaptureScreen extends ConsumerWidget {
     final cs = theme.colorScheme;
     final settings = ref.watch(settingsProvider).valueOrNull;
     final enabled = settings?.messageCaptureEnabled ?? false;
+    final health = ref.watch(captureHealthProvider).valueOrNull;
     final keepRaw = ref.watch(keepRawSmsProvider).valueOrNull ?? false;
     final rules = ref.watch(senderRulesListProvider).valueOrNull ?? const [];
     final pending = ref.watch(pendingCountProvider);
@@ -55,11 +57,17 @@ class MessageCaptureScreen extends ConsumerWidget {
                   secondary: const AppIcon(Icons.sms_outlined),
                   title: const Text('Capture incoming SMS'),
                   subtitle: Text(
-                    enabled
-                        ? 'On. Pause this any time — nothing already saved is deleted.'
-                        : 'Off. Bank texts are ignored until you turn this on.',
+                    health == null
+                        ? (enabled
+                              ? 'On. Pause this any time — nothing already saved is deleted.'
+                              : 'Off. Bank texts are ignored until you turn this on.')
+                        : (health.showWarning
+                              ? '${health.title}. ${health.message}'
+                              : health.title),
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: cs.onSurfaceVariant,
+                      color: health?.showWarning == true
+                          ? cs.error
+                          : cs.onSurfaceVariant,
                     ),
                   ),
                   value: enabled,
@@ -201,5 +209,11 @@ class MessageCaptureScreen extends ConsumerWidget {
     }
     await db.setMessageCaptureEnabled(on);
     await SmsCaptureBridge.setEnabled(on);
+    if (!context.mounted) return;
+    await syncDeviceCaptureHealth(
+      db: db,
+      notifications: ref.read(notificationServiceProvider),
+      widgets: ref.read(homeWidgetServiceProvider),
+    );
   }
 }

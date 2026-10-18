@@ -73,9 +73,19 @@ class _DownloadDataScreenState extends ConsumerState<DownloadDataScreen> {
   }
 
   Future<void> _exportFiltered(String tag) async {
+    final db = ref.read(dbProvider);
+    final accounts = await db.select(db.accounts).get();
+    final categories = await db.select(db.categories).get();
+    if (!mounted) return;
+    final accountNames = accounts.map((a) => a.name).toSet().toList()..sort();
+    final categoryNames = categories.map((c) => c.name).toSet().toList()
+      ..sort();
     final filter = await showDialog<ExportFilter>(
       context: context,
-      builder: (ctx) => const _ExportFilterDialog(),
+      builder: (ctx) => _ExportFilterDialog(
+        accountNames: accountNames,
+        categoryNames: categoryNames,
+      ),
     );
     if (filter == null || !mounted) return;
     final service = ref.read(backupServiceProvider);
@@ -87,12 +97,7 @@ class _DownloadDataScreenState extends ConsumerState<DownloadDataScreen> {
           case 'xlsx':
             return service.writeXlsx(filter: filter);
           case 'pdf':
-            final now = DateTime.now();
-            return service.writePeriodPdf(
-              start: filter.start ?? DateTime(now.year, now.month, 1),
-              end: filter.endInclusive ?? now,
-              filter: filter,
-            );
+            return service.writePeriodPdf(filter: filter);
           default:
             return service.writeAccountantCsv(filter: filter);
         }
@@ -129,8 +134,9 @@ class _DownloadDataScreenState extends ConsumerState<DownloadDataScreen> {
             icon: Icons.table_chart_outlined,
             title: 'Transactions (CSV)',
             subtitle:
-                'Date, time, type, amount, account, category, merchant, '
-                'reference, tags and source. Amounts are exact paise.',
+                'Date, time, type, amount, account, category, subcategory, '
+                'merchant, reference, tags and source. Amounts are exact paise. '
+                'Filter by date, account, category, or type first.',
             buttonLabel: 'Export CSV',
             busy: _busy && _running == 'csv',
             enabled: !_busy,
@@ -141,8 +147,8 @@ class _DownloadDataScreenState extends ConsumerState<DownloadDataScreen> {
             icon: Icons.grid_on_outlined,
             title: 'Excel (XLSX)',
             subtitle:
-                'A summary sheet (totals by category and by month) and a '
-                'transactions sheet.',
+                'A summary sheet and a transactions sheet, using the same '
+                'date, account, category, and type filters as CSV.',
             buttonLabel: 'Export Excel',
             busy: _busy && _running == 'xlsx',
             enabled: !_busy,
@@ -152,7 +158,10 @@ class _DownloadDataScreenState extends ConsumerState<DownloadDataScreen> {
           _ActionCard(
             icon: Icons.picture_as_pdf_outlined,
             title: 'PDF statement',
-            subtitle: 'A chosen period, with totals and a category summary.',
+            subtitle:
+                'Totals and a category summary for the same date, account, '
+                'category, and type filters. An open date range uses the '
+                'rows that match, not the current month.',
             buttonLabel: 'Export PDF',
             busy: _busy && _running == 'pdf',
             enabled: !_busy,
@@ -215,25 +224,24 @@ class _DownloadDataScreenState extends ConsumerState<DownloadDataScreen> {
 }
 
 class _ExportFilterDialog extends StatefulWidget {
-  const _ExportFilterDialog();
+  const _ExportFilterDialog({
+    required this.accountNames,
+    required this.categoryNames,
+  });
+
+  final List<String> accountNames;
+  final List<String> categoryNames;
 
   @override
   State<_ExportFilterDialog> createState() => _ExportFilterDialogState();
 }
 
 class _ExportFilterDialogState extends State<_ExportFilterDialog> {
-  final _account = TextEditingController();
-  final _category = TextEditingController();
   DateTime? _start;
   DateTime? _end;
+  String? _account;
+  String? _category;
   String? _type;
-
-  @override
-  void dispose() {
-    _account.dispose();
-    _category.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -261,6 +269,16 @@ class _ExportFilterDialogState extends State<_ExportFilterDialog> {
               contentPadding: EdgeInsets.zero,
               title: const Text('To'),
               subtitle: Text(_end == null ? 'Any' : _fmt(_end!)),
+              trailing: _start == null && _end == null
+                  ? null
+                  : IconButton(
+                      tooltip: 'Clear dates',
+                      onPressed: () => setState(() {
+                        _start = null;
+                        _end = null;
+                      }),
+                      icon: const Icon(Icons.clear),
+                    ),
               onTap: () async {
                 final picked = await showDatePicker(
                   context: context,
@@ -271,13 +289,33 @@ class _ExportFilterDialogState extends State<_ExportFilterDialog> {
                 if (picked != null) setState(() => _end = picked);
               },
             ),
-            TextField(
-              controller: _account,
-              decoration: const InputDecoration(labelText: 'Account name'),
+            DropdownButtonFormField<String?>(
+              initialValue: _account,
+              isExpanded: true,
+              decoration: const InputDecoration(labelText: 'Account'),
+              items: [
+                const DropdownMenuItem<String?>(
+                  value: null,
+                  child: Text('Any'),
+                ),
+                for (final name in widget.accountNames)
+                  DropdownMenuItem<String?>(value: name, child: Text(name)),
+              ],
+              onChanged: (value) => _account = value,
             ),
-            TextField(
-              controller: _category,
+            DropdownButtonFormField<String?>(
+              initialValue: _category,
+              isExpanded: true,
               decoration: const InputDecoration(labelText: 'Category'),
+              items: [
+                const DropdownMenuItem<String?>(
+                  value: null,
+                  child: Text('Any'),
+                ),
+                for (final name in widget.categoryNames)
+                  DropdownMenuItem<String?>(value: name, child: Text(name)),
+              ],
+              onChanged: (value) => _category = value,
             ),
             const SizedBox(height: 12),
             Wrap(
@@ -305,8 +343,8 @@ class _ExportFilterDialogState extends State<_ExportFilterDialog> {
             ExportFilter(
               start: _start,
               endInclusive: _end,
-              account: _account.text.trim(),
-              category: _category.text.trim(),
+              account: _account,
+              category: _category,
               type: _type,
             ),
           ),

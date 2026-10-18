@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:textSize="11sp"
         android:textColor="@color/widget_text_secondary"
-        tools:text="Capture paused" />
+        tools:text="Paused by you" />
 
     <TextView
         android:id="@+id/widget_balance"

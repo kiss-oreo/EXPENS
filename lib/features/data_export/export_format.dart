@@ -72,6 +72,34 @@ class ExportFilter {
     if (type != null && type!.isNotEmpty && row.type != type) return false;
     return true;
   }
+
+  /// Header range for a PDF. A chosen date is kept. An open end uses the
+  /// rows that passed the filter, not the current month.
+  ({DateTime start, DateTime end}) displayRange(
+    List<ExportRow> rows,
+    DateTime fallback,
+  ) {
+    DateTime? earliest;
+    DateTime? latest;
+    for (final row in rows) {
+      if (earliest == null || row.date.isBefore(earliest)) earliest = row.date;
+      if (latest == null || row.date.isAfter(latest)) latest = row.date;
+    }
+    return (
+      start: start ?? earliest ?? DateTime(fallback.year, fallback.month, 1),
+      end: endInclusive ?? latest ?? fallback,
+    );
+  }
+
+  /// Account, category, and type, for the PDF subtitle. Empty when unset.
+  String describe() {
+    final parts = <String>[
+      if (account != null && account!.isNotEmpty) 'Account: $account',
+      if (category != null && category!.isNotEmpty) 'Category: $category',
+      if (type != null && type!.isNotEmpty) 'Type: $type',
+    ];
+    return parts.join(' · ');
+  }
 }
 
 const exportCsvHeader = [

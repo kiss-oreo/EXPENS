@@ -13,6 +13,7 @@ Future<Uint8List> buildPeriodStatementPdf({
   required DateTime start,
   required DateTime end,
   required List<ExportRow> rows,
+  String subtitle = '',
 }) async {
   final doc = pw.Document(title: '${AppInfo.name} statement');
   final income = rows
@@ -49,6 +50,10 @@ Future<Uint8List> buildPeriodStatementPdf({
           '${_d(start)} to ${_d(end)}',
           style: const pw.TextStyle(fontSize: 11),
         ),
+        if (subtitle.isNotEmpty) ...[
+          pw.SizedBox(height: 4),
+          pw.Text(subtitle, style: const pw.TextStyle(fontSize: 11)),
+        ],
         pw.SizedBox(height: 12),
         pw.Text('Income  ${formatPaise(income)}'),
         pw.Text('Expense  ${formatPaise(expense)}'),

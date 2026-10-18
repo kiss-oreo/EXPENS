@@ -15,8 +15,9 @@ Keep that license and copyright. Credit XPENC in NOTICE. Do not copy GPL code.
   `test/branding_test.dart` fails if they drift.
 - Current schema: **81** (`lib/data/database.dart`). Side tables are created
   by `lib/data/ledger_extensions.dart` with idempotent SQL. Schema 81 only
-  re-runs that step. Do not hand-edit `lib/data/database.g.dart`. Do not drop
-  user rows in a migration.
+  re-runs that step. Tags and subcategories already live there. Do not add a
+  second schema for them. Do not hand-edit `lib/data/database.g.dart`. Do not
+  drop user rows in a migration.
 
 ## Money
 
@@ -48,11 +49,19 @@ instruments and must not add a second balance.
   system file picker only — no storage permission, no network. Parse the
   layouts in `samples/gpay_statement.txt` and `samples/phonepe_statement.txt`.
   Do not copy parser code from another project. New rows use
-  `tx_extras.source = IMPORT_PDF`. A duplicate merges into the existing row.
+  `tx_extras.source = IMPORT_PDF`. A duplicate only fills empty fields. Never
+  overwrite a user-set category, account, note, tags, or payee.
+- Redacted real statements belong in `samples/real/`. `test/real_samples_test.dart`
+  runs every file there. Do not invent fixtures and report them as those files.
+  If the directory is missing, that test fails and those formats were not run.
 - Subscriptions (`lib/features/subscriptions/`) are reminders only. Never
   auto-create a transaction from a detected pattern.
-- Capture health is a dashboard banner plus a notification. It is not a
-  notification listener and does not read the inbox.
+- Capture health states are Not set up, Active, Paused by you, and Permission
+  revoked. Only the last two warn. A fresh install is Not set up, tracked by
+  `expens_meta.capture_ever_enabled` (and `lastMessageScanAt` for older rows).
+- `CaptureHealthCheck` updates the balance widget label about every six hours
+  from saved flags plus the incoming-SMS permission. It is not an SMS receiver
+  and must not read a message. `CaptureHealthBoot` reschedules it after reboot.
 
 ## Layout
 
@@ -64,7 +73,9 @@ instruments and must not add a second balance.
 - Capture notification Category action opens `/more/capture/category/:id`.
   The body tap still opens `/add?id=`. Delete does not open the app.
 - `lib/features/message_capture/` — share intake (existing) plus the SMS bridge
-- `lib/features/data_export/` — XPENC backup plus accountant CSV, XLSX, period PDF
+- `lib/features/data_export/` — XPENC backup plus accountant CSV, XLSX, period PDF.
+  All three accountant formats take `ExportFilter` (date range, account,
+  category, type) via `loadExportRows`.
 - `android/app/src/main/kotlin/com/kissoreo/expens/` — platform channels
 - Backup filenames stay `DDMMYYXPENCEBACKUP.json` and the folder stays
   `BACKUP XPENC` so an XPENC backup still restores.
@@ -76,6 +87,28 @@ instruments and must not add a second balance.
 - Do not add a network client, analytics, or a tracker.
 - Do not bump `schemaVersion` without a migration that keeps existing rows,
   and a test that reopens an older database.
+
+## Release signing
+
+Do not commit a keystore, `android/key.properties`, or `*.jks`.
+`android/.gitignore` already ignores those.
+
+`.github/workflows/release.yml` writes `android/key.properties` only when all
+four GitHub Actions secrets are non-empty:
+
+- `ANDROID_KEYSTORE_BASE64` — base64 of the upload `.jks`
+- `ANDROID_KEYSTORE_PASSWORD` — `storePassword`
+- `ANDROID_KEY_PASSWORD` — `keyPassword`
+- `ANDROID_KEY_ALIAS` — `keyAlias`
+
+The workflow decodes the keystore to `android/xpenc-release.jks` on the
+runner and points `storeFile` at that path. An empty secret deletes
+`android/key.properties` and exits that step. Gradle then debug-signs a
+sideloadable APK. That APK must not be uploaded to Play.
+
+A local release build uses the same four keys in `android/key.properties`.
+Generate the keystore with `keytool` outside the repo and keep a backup.
+See `docs/playstore/release-checklist.md`.
 
 ## Checks
 

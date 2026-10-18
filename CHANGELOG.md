@@ -8,6 +8,23 @@ Release process: see [docs/RELEASING.md](docs/RELEASING.md).
 
 ## [Unreleased]
 
+## [1.9.0] — 2026-10-18
+
+### Added
+- Export filters for CSV, XLSX, and PDF: date range, account, category, and type. The same filter is applied to all three. An open PDF date range uses the matching rows, not the current month.
+- Capture health states: Not set up, Active, Paused by you, and Permission revoked. Only the last two show a warning.
+- A permission-only widget check about every six hours. It does not read a message. It is rescheduled after reboot.
+- GitHub Actions release signing from `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_PASSWORD`, and `ANDROID_KEY_ALIAS`. An empty secret does not write `android/key.properties`. No key is committed.
+
+### Changed
+- An import match only fills empty fields. A user-set category, account, note, tags, or payee is not overwritten.
+- Schema stays 81. Tags and subcategories were already in the editor and in exports.
+
+### Limitations
+- `samples/real/` is not in this tree or on `origin/arena/1d2f5643-expens`. The Google Pay PDF, PhonePe PDF, and bank SMS files were not run. `test/real_samples_test.dart` fails until those files are added. Do not invent them.
+- The six-hour check updates the widget label only. It does not import messages. The alarm is inexact, so the gap can be longer than six hours while the phone is asleep.
+- `flutter analyze` and `flutter test` did not run: the Dart SDK download from `storage.googleapis.com` failed with `SSL_ERROR_SYSCALL`. `tool/verify_apk.sh` failed because `build/app/outputs/flutter-apk/app-release.apk` is not present. None of these are a pass.
+
 ## [1.8.0] — 2026-10-18
 
 ### Added

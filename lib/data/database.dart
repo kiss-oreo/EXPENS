@@ -5544,9 +5544,24 @@ class AppDatabase extends _$AppDatabase {
 
   // ── Settings for capture ─────────────────────────────────────────────────
 
-  Future<void> setMessageCaptureEnabled(bool enabled) => update(
-    settings,
-  ).write(SettingsCompanion(messageCaptureEnabled: Value(enabled)));
+  Future<void> setMessageCaptureEnabled(bool enabled) async {
+    if (enabled) {
+      await rememberCaptureEnabled();
+    } else {
+      final current = await getSettings();
+      if (current.messageCaptureEnabled || current.lastMessageScanAt != null) {
+        await rememberCaptureEnabled();
+      }
+    }
+    await update(
+      settings,
+    ).write(SettingsCompanion(messageCaptureEnabled: Value(enabled)));
+  }
+
+  /// Set the first time capture is turned on. A missing flag means a fresh
+  /// install, which is "Not set up", not "Paused by you".
+  Future<void> rememberCaptureEnabled() =>
+      setMetaValue(this, 'capture_ever_enabled', '1');
 
   Future<void> setAutoApprove(bool enabled) =>
       update(settings).write(SettingsCompanion(autoApprove: Value(enabled)));

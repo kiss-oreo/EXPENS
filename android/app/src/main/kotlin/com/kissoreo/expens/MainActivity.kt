@@ -20,10 +20,9 @@ private const val SCREEN_SECURITY_CHANNEL = "xpenc/screen_security"
  * — users had to pause Play Protect just to install the app — so the
  * permission and the channel were removed in 1.1.0.
  *
- * The Dart capture pipeline (parser, dedupe, Review Inbox) is untouched and
- * still sits behind the `MessageSource` interface. When capture returns in a
- * Play-compliant form (e.g. a NotificationListenerService source), implement a
- * new source there; the git history of this file has the old channel code.
+ * Capture is a manifest BroadcastReceiver for the message that just arrived.
+ * Do not put an inbox query, a notification listener, or an accessibility
+ * service back in this activity. The git history has the old channel code.
  *
  * Extends FlutterFragmentActivity (not FlutterActivity) because the passcode
  * lock's biometric unlock (`local_auth`) needs a FragmentActivity to host the
@@ -58,6 +57,8 @@ class MainActivity : FlutterFragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestHighRefreshRate()
+        // Permission-only. Does not read a message. See CaptureHealthCheck.
+        CaptureHealthCheck.schedule(this)
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

@@ -15,7 +15,7 @@ class DashboardAlerts extends ConsumerWidget {
     final health = ref.watch(captureHealthProvider).valueOrNull;
     final review = ref.watch(needsReviewProvider).valueOrNull;
     final waiting = review?.length ?? 0;
-    if ((health == null || !health.showBanner) && waiting == 0) {
+    if ((health == null || !health.showWarning) && waiting == 0) {
       return const SizedBox.shrink();
     }
     final theme = Theme.of(context);
@@ -23,11 +23,13 @@ class DashboardAlerts extends ConsumerWidget {
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       child: Column(
         children: [
-          if (health != null && health.showBanner)
+          if (health != null && health.showWarning)
             AppCard(
               child: ListTile(
                 leading: Icon(
-                  Icons.pause_circle_outline,
+                  health.kind == CaptureHealthKind.permissionRevoked
+                      ? Icons.sms_failed_outlined
+                      : Icons.pause_circle_outline,
                   color: theme.colorScheme.error,
                 ),
                 title: Text(health.title),
@@ -36,7 +38,7 @@ class DashboardAlerts extends ConsumerWidget {
               ),
             ),
           if (waiting > 0) ...[
-            if (health != null && health.showBanner) const SizedBox(height: 8),
+            if (health != null && health.showWarning) const SizedBox(height: 8),
             AppCard(
               child: ListTile(
                 leading: const Icon(Icons.rate_review_outlined),

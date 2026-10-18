@@ -144,10 +144,9 @@ class _XpencAppState extends ConsumerState<XpencApp>
 
   Future<void> _syncCaptureHealth() async {
     try {
-      final settings = await ref.read(dbProvider).getSettings();
       if (!mounted) return;
       await syncDeviceCaptureHealth(
-        captureEnabled: settings.messageCaptureEnabled,
+        db: ref.read(dbProvider),
         notifications: ref.read(notificationServiceProvider),
         widgets: ref.read(homeWidgetServiceProvider),
       );

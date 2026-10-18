@@ -66,7 +66,7 @@ jobs:
           KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
-          if [ -z "$KEYSTORE_B64" ] || [ -z "$STORE_PASSWORD" ] || [ -z "$KEY_ALIAS" ]; then
+          if [ -z "$KEYSTORE_B64" ] || [ -z "$STORE_PASSWORD" ] || [ -z "$KEY_PASSWORD" ] || [ -z "$KEY_ALIAS" ]; then
             echo "No release keystore configured. APK will be debug-signed and can be sideloaded."
             rm -f android/key.properties
             # A fresh runner has no debug keystore. Gradle refuses to sign
@@ -86,12 +86,14 @@ jobs:
           fi
           echo "release" > /tmp/signing-mode.txt
           echo "$KEYSTORE_B64" | base64 -d > "$GITHUB_WORKSPACE/android/xpenc-release.jks"
-          cat > android/key.properties <<EOF
-          storePassword=${STORE_PASSWORD}
-          keyPassword=${KEY_PASSWORD}
-          keyAlias=${KEY_ALIAS}
-          storeFile=$GITHUB_WORKSPACE/android/xpenc-release.jks
-          EOF
+          # printf, not an indented heredoc, so the property keys have no
+          # leading spaces. The .jks and key.properties stay on the runner.
+          {
+            printf 'storePassword=%s\n' "$STORE_PASSWORD"
+            printf 'keyPassword=%s\n' "$KEY_PASSWORD"
+            printf 'keyAlias=%s\n' "$KEY_ALIAS"
+            printf 'storeFile=%s\n' "$GITHUB_WORKSPACE/android/xpenc-release.jks"
+          } > android/key.properties
 
       # `--enforce-lockfile` refuses to silently rewrite pubspec.lock if it's
       # out of sync with pubspec.yaml — F-Droid's own reproducible build uses

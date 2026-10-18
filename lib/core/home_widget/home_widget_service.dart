@@ -19,9 +19,10 @@ typedef WidgetBudgetLine = ({String name, Money spent, Money limit});
 /// Add (just the shortcuts, enlarged), and This Month (income vs expense
 /// for the current calendar month) — see GitHub's widget-section request.
 ///
-/// There is no background refresh: like message capture, this app has no
-/// background service, so a widget only updates while the app itself is
-/// open (on start, and live thereafter — see `app.dart`).
+/// Amounts update while the app is open (on start, and live thereafter —
+/// see `app.dart`). The capture label is the exception: `CaptureHealthCheck`
+/// rewrites it about every six hours from the saved flags plus the incoming
+/// SMS permission. That check does not read a message.
 ///
 /// Every call is a no-op where there are no widgets to drive — see
 /// [PlatformFeatures.homeWidgets].
@@ -74,10 +75,24 @@ class HomeWidgetService {
     }
   }
 
-  /// Optional label on the balance widget. Empty clears it. No-op off Android.
-  Future<void> updateCaptureLabel(String label) async {
+  /// Optional label on the balance widget. Empty clears it. The enabled flags
+  /// are saved beside it so the six-hour check can refresh the label without
+  /// opening the database. No-op off Android.
+  Future<void> updateCaptureLabel(
+    String label, {
+    required bool captureEnabled,
+    required bool everEnabled,
+  }) async {
     if (!PlatformFeatures.homeWidgets) return;
     try {
+      await HomeWidget.saveWidgetData<String>(
+        'capture_enabled',
+        captureEnabled ? '1' : '0',
+      );
+      await HomeWidget.saveWidgetData<String>(
+        'capture_ever_enabled',
+        everEnabled ? '1' : '0',
+      );
       await HomeWidget.saveWidgetData<String>('capture_label', label);
       await HomeWidget.updateWidget(androidName: _balanceAndroidName);
     } catch (e) {

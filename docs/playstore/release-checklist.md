@@ -75,8 +75,11 @@ android {
 
 - [ ] Enroll in **Play App Signing** when creating the app (default for new apps): Google
   keeps the app signing key, your keystore is only the *upload* key.
-- [ ] Re-point the GitHub `release.yml` APKs at the same upload key (secrets:
-  base64-encoded keystore + passwords) so sideload builds stop being debug-signed.
+- [x] GitHub `release.yml` reads the upload key from Actions secrets
+  (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`,
+  `ANDROID_KEY_PASSWORD`, `ANDROID_KEY_ALIAS`). An empty secret does not
+  write `android/key.properties`. The `.jks` is still not in git — set the
+  secrets in the repository settings, and keep a backup of the keystore.
 
 > **Sideload → Play migration caveat:** existing GitHub-APK installs (debug-signed) have
 > a different signature from both future GitHub builds and Play builds — Android will

@@ -16,9 +16,9 @@ import es.antonborri.home_widget.HomeWidgetProvider
  * real amount keypad).
  *
  * Data (`net_worth`) is pushed from Dart via `HomeWidget.saveWidgetData` —
- * see `lib/core/home_widget/home_widget_service.dart`. There is no
- * background refresh: like message capture, this app has no background
- * service, so the widget only updates while the app itself is open.
+ * see `lib/core/home_widget/home_widget_service.dart`. Amounts update while
+ * the app is open. `capture_label` can also be rewritten by [CaptureHealthCheck]
+ * about every six hours. That check does not read a message.
  */
 class BalanceWidgetProvider : HomeWidgetProvider() {
 

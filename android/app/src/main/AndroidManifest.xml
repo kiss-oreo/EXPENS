@@ -108,6 +108,19 @@
             </intent-filter>
         </receiver>
 
+        <!-- About every six hours, refresh the widget capture label from the
+             permission state. Not an SMS receiver. Does not read a message. -->
+        <receiver
+            android:name=".CaptureHealthCheck"
+            android:exported="false" />
+        <receiver
+            android:name=".CaptureHealthBoot"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+
         <!-- The home-screen Balance widget. -->
         <receiver android:name=".BalanceWidgetProvider"
             android:exported="true">
