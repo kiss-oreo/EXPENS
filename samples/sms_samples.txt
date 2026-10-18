@@ -190,3 +190,283 @@ reason: noDirection
 ---
 Thank you for banking with HDFC. Visit the branch for your passbook.
 ===
+# Extra payments in the same dialect as the blocks above, so each bank
+# parser has at least three. Written for this app. Not copied from another project.
+id: hdfc-debit-2
+sender: VM-HDFCBK-S
+expect: debit
+amount_paise: 12000
+account: 1234
+merchant_contains: Metro
+reference: 121212121213
+balance_paise: 880000
+payment_method: UPI
+---
+Rs 120.00 debited from A/c XX1234 on 13-10-2026 09:15 at Metro. UPI Ref 121212121213. Avl Bal Rs 8,800.00
+===
+id: hdfc-debit-3
+sender: VM-HDFCBK-S
+expect: debit
+amount_paise: 4500
+account: 1234
+merchant_contains: Pharmacy
+reference: 131313131313
+balance_paise: 870000
+payment_method: UPI
+---
+Rs 45.00 debited from A/c XX1234 on 14-10-2026 19:40 at Pharmacy. UPI Ref 131313131313. Avl Bal Rs 8,700.00
+===
+id: sbi-debit-2
+sender: AD-SBIUPI-S
+expect: debit
+amount_paise: 15000
+account: 5678
+merchant_contains: BigBasket
+reference: 141414141414
+balance_paise: 420000
+payment_method: UPI
+---
+Rs 150.00 debited from A/c XX5678. Info: UPI/BigBasket/okaxis. UTR 141414141414. Avl Bal Rs 4,200.00
+===
+id: sbi-debit-3
+sender: AD-SBIUPI-S
+expect: debit
+amount_paise: 7550
+account: 5678
+merchant_contains: Blinkit
+reference: 151515151515
+balance_paise: 410025
+payment_method: UPI
+---
+Rs 75.50 debited from A/c XX5678. Info: UPI/Blinkit/okaxis. UTR 151515151515. Avl Bal Rs 4,100.25
+===
+id: icici-credit-2
+sender: VM-ICICIB-S
+expect: credit
+amount_paise: 200000
+account: 4321
+merchant_contains: AMAZON
+reference: 161616161616
+balance_paise: 2200000
+payment_method: NETBANKING
+---
+Rs 2,000.00 credited to A/c XX4321; AMAZON credited. NEFT Ref No 161616161616. Avl Bal Rs 22,000.00
+===
+id: icici-debit-2
+sender: VM-ICICIB-S
+expect: debit
+amount_paise: 8000
+account: 4321
+merchant_contains: Metro
+reference: 171717171717
+balance_paise: 1900000
+payment_method: UPI
+---
+Rs 80.00 debited from A/c XX4321 at Metro. UPI Ref 171717171717. Avl Bal Rs 19,000.00
+===
+id: axis-card-2
+sender: VK-AXISBK-S
+expect: debit
+amount_paise: 9000
+account: 2468
+merchant_contains: Dmart
+reference: 181818181818
+balance_paise: 310000
+payment_method: CARD
+---
+Rs 90.00 spent on Card XX2468 at Dmart. Ref No 181818181818. Avl Bal Rs 3,100.00
+===
+id: axis-card-3
+sender: VK-AXISBK-S
+expect: debit
+amount_paise: 11000
+account: 2468
+merchant_contains: Metro
+reference: 191919191919
+balance_paise: 290000
+payment_method: CARD
+---
+Rs 110.00 spent on Card XX2468 at Metro. Ref No 191919191919. Avl Bal Rs 2,900.00
+===
+id: kotak-debit-2
+sender: AD-KOTAKB-S
+expect: debit
+amount_paise: 5500
+account: 1357
+merchant_contains: BigBazaar
+reference: 202020202020
+balance_paise: 100000
+payment_method: UPI
+---
+Rs 55.00 debited from A/c XX1357. Payee: BigBazaar. UPI Ref 202020202020. Avl Bal Rs 1,000.00
+===
+id: kotak-debit-3
+sender: AD-KOTAKB-S
+expect: debit
+amount_paise: 6500
+account: 1357
+merchant_contains: Pharmacy
+reference: 212121212121
+balance_paise: 90000
+payment_method: UPI
+---
+Rs 65.00 debited from A/c XX1357. Payee: Pharmacy. UPI Ref 212121212121. Avl Bal Rs 900.00
+===
+id: pnb-debit-2
+sender: VM-PNBSMS-S
+expect: debit
+amount_paise: 3000
+account: 8642
+merchant_contains: Bookshop
+reference: 222222222222
+balance_paise: 790000
+---
+Rs 30.00 debited from A/c XX8642 towards Bookshop. Ref No 222222222222. Avl Bal Rs 7,900.00
+===
+id: pnb-debit-3
+sender: VM-PNBSMS-S
+expect: debit
+amount_paise: 2500
+account: 8642
+merchant_contains: Cafe
+reference: 232323232323
+balance_paise: 780000
+---
+Rs 25.00 debited from A/c XX8642 towards Cafe. Ref No 232323232323. Avl Bal Rs 7,800.00
+===
+id: bob-upi-2
+sender: AD-BOBTXN-S
+expect: debit
+amount_paise: 7000
+account: 9753
+merchant_contains: Amazon
+reference: 242424242424
+balance_paise: 210000
+payment_method: UPI
+---
+Rs 70.00 debited from A/c XX9753 towards UPI/Amazon. UTR 242424242424. Avl Bal Rs 2,100.00
+===
+id: bob-upi-3
+sender: AD-BOBTXN-S
+expect: debit
+amount_paise: 8000
+account: 9753
+merchant_contains: Flipkart
+reference: 252525252525
+balance_paise: 200000
+payment_method: UPI
+---
+Rs 80.00 debited from A/c XX9753 towards UPI/Flipkart. UTR 252525252525. Avl Bal Rs 2,000.00
+===
+id: canara-debit-2
+sender: VM-CANBNK-S
+expect: debit
+amount_paise: 2200
+account: 1111
+merchant_contains: Pharmacy
+reference: 262626262626
+balance_paise: 50000
+---
+Rs 22.00 debited from A/c XX1111 towards Pharmacy. UTR 262626262626. Avl Bal Rs 500.00
+===
+id: canara-debit-3
+sender: VM-CANBNK-S
+expect: debit
+amount_paise: 1900
+account: 1111
+merchant_contains: Metro
+reference: 272727272727
+balance_paise: 48000
+---
+Rs 19.00 debited from A/c XX1111 towards Metro. UTR 272727272727. Avl Bal Rs 480.00
+===
+id: union-upi-2
+sender: AD-UNIONB-S
+expect: debit
+amount_paise: 30000
+account: 2222
+merchant_contains: Flipkart
+reference: 282828282828
+balance_paise: 700000
+payment_method: UPI
+---
+Rs 300.00 debited from A/c XX2222. Info: UPI/Flipkart. UTR 282828282828. Avl Bal Rs 7,000.00
+===
+id: union-upi-3
+sender: AD-UNIONB-S
+expect: debit
+amount_paise: 12000
+account: 2222
+merchant_contains: Myntra
+reference: 292929292929
+balance_paise: 680000
+payment_method: UPI
+---
+Rs 120.00 debited from A/c XX2222. Info: UPI/Myntra. UTR 292929292929. Avl Bal Rs 6,800.00
+===
+id: idfc-debit-2
+sender: VM-IDFCFB-S
+expect: debit
+amount_paise: 4400
+account: 3333
+merchant_contains: Bookshop
+reference: 303030303030
+balance_paise: 400000
+---
+Rs 44.00 debited from A/c XX3333 to Bookshop. UTR 303030303030. Avl Bal Rs 4,000.00
+===
+id: idfc-debit-3
+sender: VM-IDFCFB-S
+expect: debit
+amount_paise: 5500
+account: 3333
+merchant_contains: Cafe
+reference: 313131313131
+balance_paise: 390000
+---
+Rs 55.00 debited from A/c XX3333 to Cafe. UTR 313131313131. Avl Bal Rs 3,900.00
+===
+id: yes-debit-2
+sender: AD-YESBNK-S
+expect: debit
+amount_paise: 2800
+account: 4444
+merchant_contains: Metro
+reference: 323232323232
+balance_paise: 50000
+---
+Rs 28.00 debited from A/c XX4444. Info: Metro. UTR 323232323232. Avl Bal Rs 500.00
+===
+id: yes-debit-3
+sender: AD-YESBNK-S
+expect: debit
+amount_paise: 3600
+account: 4444
+merchant_contains: Cafe
+reference: 333333333333
+balance_paise: 45000
+---
+Rs 36.00 debited from A/c XX4444. Info: Cafe. UTR 333333333333. Avl Bal Rs 450.00
+===
+id: ippb-debit-2
+sender: VM-IPPB-S
+expect: debit
+amount_paise: 2000
+account: 5555
+merchant_contains: Bookshop
+reference: 343434343434
+balance_paise: 18000
+---
+Rs 20.00 debited from A/c XX5555 at Bookshop. UTR 343434343434. Avl Bal Rs 180.00
+===
+id: ippb-debit-3
+sender: VM-IPPB-S
+expect: debit
+amount_paise: 2500
+account: 5555
+merchant_contains: Pharmacy
+reference: 353535353535
+balance_paise: 15000
+---
+Rs 25.00 debited from A/c XX5555 at Pharmacy. UTR 353535353535. Avl Bal Rs 150.00
+===

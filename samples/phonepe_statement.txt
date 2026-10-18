@@ -1,0 +1,16 @@
+# Synthetic PhonePe transaction statement. Written for this app from the
+# public two-line layout (date, paid to, debit or credit, amount, then
+# transaction id, UTR, and paid-by). Not copied from another project.
+
+PhonePe
+Transaction statement
+Apr 02, 2025 Paid to Swiggy DEBIT Rs 250.50
+02:30 PM Transaction ID T2504021834132972203933 UTR No. 123456789012 Paid by XXXXXX1234
+Apr 02, 2025 Received from Rahul CREDIT Rs 1,500.00
+06:10 PM Transaction ID T2504021810000000000001 UTR No. 998877665544 Paid by XXXXXX1234
+Apr 03, 2025 Paid to Bookshop DEBIT Rs 18.50
+09:00 AM Transaction ID T2504030900000000000002 UTR No. 112233445566 Failed
+Apr 04, 2025 Paid to Dmart DEBIT Rs 33.00
+08:00 PM Transaction ID T2504042000000000000003 UTR No. 707070707070 Pending
+Apr 05, 2025 Paid to Postoffice DEBIT Rs 15.00
+10:15 AM Transaction ID T2504051015000000000004 UTR No. 606060606060 Paid by XXXXXX5555

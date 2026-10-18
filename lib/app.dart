@@ -15,10 +15,12 @@ import 'core/theme/theme_preset.dart';
 import 'core/widgets/error_view.dart';
 import 'core/widgets/money_text.dart';
 import 'data/providers.dart';
+import 'features/message_capture/capture_health.dart';
 import 'features/message_capture/parser/bank_message.dart';
 import 'features/message_capture/share_intake.dart';
 import 'features/message_capture/sms_capture_bridge.dart';
 import 'features/security/lock_screen.dart';
+import 'features/subscriptions/subscription_reminders.dart';
 
 class XpencApp extends ConsumerStatefulWidget {
   const XpencApp({super.key});
@@ -106,6 +108,8 @@ class _XpencAppState extends ConsumerState<XpencApp>
 
     await _runRecurring();
     await _scanMessages();
+    await _syncCaptureHealth();
+    await _syncSubscriptions();
     await _drainIncomingSms();
     await _runAutoBackup();
   }
@@ -138,6 +142,31 @@ class _XpencAppState extends ConsumerState<XpencApp>
     }
   }
 
+  Future<void> _syncCaptureHealth() async {
+    try {
+      final settings = await ref.read(dbProvider).getSettings();
+      if (!mounted) return;
+      await syncDeviceCaptureHealth(
+        captureEnabled: settings.messageCaptureEnabled,
+        notifications: ref.read(notificationServiceProvider),
+        widgets: ref.read(homeWidgetServiceProvider),
+      );
+    } catch (e) {
+      debugPrint('capture health sync failed: $e');
+    }
+  }
+
+  Future<void> _syncSubscriptions() async {
+    try {
+      await deliverSubscriptionReminders(
+        db: ref.read(dbProvider),
+        notifications: ref.read(notificationServiceProvider),
+      );
+    } catch (e) {
+      debugPrint('subscription reminders failed: $e');
+    }
+  }
+
   /// The spec is "when the user opens the app, they see cards". So we scan on
   /// resume rather than running a background receiver.
   @override
@@ -147,6 +176,8 @@ class _XpencAppState extends ConsumerState<XpencApp>
       _pausedAt = null;
       _runRecurring();
       _scanMessages();
+      _syncCaptureHealth();
+      _syncSubscriptions();
       _drainIncomingSms();
       _runAutoBackup();
       // Restores the shortcut if the system cleared it under memory

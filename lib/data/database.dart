@@ -200,7 +200,7 @@ class AppDatabase extends _$AppDatabase {
       );
 
   @override
-  int get schemaVersion => 80;
+  int get schemaVersion => 81;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -738,6 +738,12 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 80) {
         // Expens merchants, capture extras, ignored payments. Additive only.
+        await ensureLedgerExtensions(this);
+      }
+      if (from < 81) {
+        // Statement import and subscription reminder keys use the existing
+        // side tables. Re-run so a database that missed them still gets them.
+        // No columns are dropped and no rows are rewritten.
         await ensureLedgerExtensions(this);
       }
     },

@@ -118,6 +118,20 @@ class MessageCaptureScreen extends ConsumerWidget {
                   trailing: const AppIcon(Icons.chevron_right_rounded),
                   onTap: () => context.push('/more/capture/ignored'),
                 ),
+                Divider(height: 1, indent: 60, color: cs.outline),
+                AppListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  leading: const AppIcon(Icons.rate_review_outlined),
+                  title: const Text('Needs review'),
+                  subtitle: Text(
+                    'Unassigned or uncategorised SMS payments',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                  trailing: const AppIcon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/more/needs-review'),
+                ),
                 if (pending > 0) ...[
                   Divider(height: 1, indent: 60, color: cs.outline),
                   AppListTile(

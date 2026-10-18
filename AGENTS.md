@@ -13,9 +13,10 @@ Keep that license and copyright. Credit XPENC in NOTICE. Do not copy GPL code.
 - Dart package name stays `xpenc` so existing imports keep working
 - Version lives in `pubspec.yaml` and `lib/core/branding/app_info.dart`.
   `test/branding_test.dart` fails if they drift.
-- Current schema: **80** (`lib/data/database.dart`). Side tables are created
-  by `lib/data/ledger_extensions.dart` with idempotent SQL. Do not hand-edit
-  `lib/data/database.g.dart`. Do not drop user rows in a migration.
+- Current schema: **81** (`lib/data/database.dart`). Side tables are created
+  by `lib/data/ledger_extensions.dart` with idempotent SQL. Schema 81 only
+  re-runs that step. Do not hand-edit `lib/data/database.g.dart`. Do not drop
+  user rows in a migration.
 
 ## Money
 
@@ -41,12 +42,25 @@ instruments and must not add a second balance.
   stay free of Flutter and Android imports. One class per bank, listed in
   `kBankParsers`. Unknown formats return an ignore, never throw.
 - Samples: `samples/sms_samples.txt`. `test/sms_capture_parser_test.dart`
-  runs the parser against every block. Add a sample when you add a bank.
+  runs the parser against every block. Add a bank only when `/samples`
+  contains it. Each bank needs at least three payment samples in that file.
+- PDF statement import lives in `lib/features/statement_import/`. It uses the
+  system file picker only — no storage permission, no network. Parse the
+  layouts in `samples/gpay_statement.txt` and `samples/phonepe_statement.txt`.
+  Do not copy parser code from another project. New rows use
+  `tx_extras.source = IMPORT_PDF`. A duplicate merges into the existing row.
+- Subscriptions (`lib/features/subscriptions/`) are reminders only. Never
+  auto-create a transaction from a detected pattern.
+- Capture health is a dashboard banner plus a notification. It is not a
+  notification listener and does not read the inbox.
 
 ## Layout
 
 - `lib/features/merchants/` — merchant directory, aliases, rules, and
   `/more/merchants/merge`
+- `lib/features/statement_import/` — `/more/import-statement`
+- `lib/features/subscriptions/` — `/more/subscriptions`
+- Quick add is `/more/quick-add`. Needs review is `/more/needs-review`.
 - Capture notification Category action opens `/more/capture/category/:id`.
   The body tap still opens `/add?id=`. Delete does not open the app.
 - `lib/features/message_capture/` — share intake (existing) plus the SMS bridge

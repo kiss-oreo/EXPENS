@@ -36,7 +36,12 @@ void main() {
       ]),
     );
 
+    final parsedByBank = <String, int>{};
     for (final sample in samples) {
+      if (sample.expect != 'ignore') {
+        final bank = sample.id.split('-').first;
+        parsedByBank[bank] = (parsedByBank[bank] ?? 0) + 1;
+      }
       final outcome = parser.parse(
         body: sample.body,
         sender: sample.sender,
@@ -72,6 +77,13 @@ void main() {
       if (sample.paymentMethod != null) {
         expect(parsed.paymentMethod, sample.paymentMethod, reason: sample.id);
       }
+    }
+    for (final bank in banks) {
+      expect(
+        parsedByBank[bank] ?? 0,
+        greaterThanOrEqualTo(3),
+        reason: '$bank needs at least 3 payment samples',
+      );
     }
   });
 

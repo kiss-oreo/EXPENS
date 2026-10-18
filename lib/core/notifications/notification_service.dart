@@ -69,6 +69,23 @@ class NotificationService {
     importance: Importance.low,
   );
 
+  static const _healthChannel = AndroidNotificationChannel(
+    'capture_health',
+    'Capture health',
+    description: 'Warns when SMS capture is paused or permission is off.',
+    importance: Importance.defaultImportance,
+  );
+
+  static const _subscriptionChannel = AndroidNotificationChannel(
+    'subscription_reminders',
+    'Subscription reminders',
+    description:
+        'Reminds you when a regular payment is expected. Nothing is added.',
+    importance: Importance.defaultImportance,
+  );
+
+  static const captureHealthNotificationId = 9102;
+
   static const _quickAddExpenseAction = 'quick_add_expense';
   static const _quickAddIncomeAction = 'quick_add_income';
 
@@ -112,6 +129,8 @@ class NotificationService {
         await android.createNotificationChannel(_autoChannel);
         await android.createNotificationChannel(_expenseNudgeChannel);
         await android.createNotificationChannel(_quickAddChannel);
+        await android.createNotificationChannel(_healthChannel);
+        await android.createNotificationChannel(_subscriptionChannel);
       }
       _ready = true;
     } catch (e, s) {
@@ -668,6 +687,68 @@ class NotificationService {
       );
     } catch (e) {
       debugPrint('quick add notification failed: $e');
+    }
+  }
+
+  /// Replaces one standing alert. Cancels it when capture is healthy, or
+  /// when the notifications master switch is off. Does not read the inbox.
+  Future<void> syncCaptureHealth({
+    required bool show,
+    required String title,
+    required String body,
+  }) async {
+    if (!_ready) return;
+    final settings = await _db.getSettings();
+    if (!settings.notificationsEnabled || !show) {
+      await _cancel(captureHealthNotificationId);
+      return;
+    }
+    try {
+      await _plugin.show(
+        id: captureHealthNotificationId,
+        title: title,
+        body: body,
+        notificationDetails: NotificationDetails(
+          android: AndroidNotificationDetails(
+            _healthChannel.id,
+            _healthChannel.name,
+            channelDescription: _healthChannel.description,
+            importance: _healthChannel.importance,
+            priority: Priority.defaultPriority,
+          ),
+        ),
+      );
+    } catch (e) {
+      debugPrint('capture health notification failed: $e');
+    }
+  }
+
+  /// A reminder only. The caller must not insert a transaction around this.
+  Future<bool> showSubscriptionReminder({
+    required int id,
+    required String title,
+    required String body,
+  }) async {
+    if (!_ready) return false;
+    try {
+      await _plugin.show(
+        id: id,
+        title: title,
+        body: body,
+        notificationDetails: NotificationDetails(
+          android: AndroidNotificationDetails(
+            _subscriptionChannel.id,
+            _subscriptionChannel.name,
+            channelDescription: _subscriptionChannel.description,
+            importance: _subscriptionChannel.importance,
+            priority: Priority.defaultPriority,
+          ),
+        ),
+      );
+      return true;
+    } catch (e) {
+      debugPrint('subscription reminder failed: $e');
+      return false;
     }
   }
 }

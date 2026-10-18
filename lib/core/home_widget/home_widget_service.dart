@@ -74,6 +74,17 @@ class HomeWidgetService {
     }
   }
 
+  /// Optional label on the balance widget. Empty clears it. No-op off Android.
+  Future<void> updateCaptureLabel(String label) async {
+    if (!PlatformFeatures.homeWidgets) return;
+    try {
+      await HomeWidget.saveWidgetData<String>('capture_label', label);
+      await HomeWidget.updateWidget(androidName: _balanceAndroidName);
+    } catch (e) {
+      debugPrint('HomeWidgetService.updateCaptureLabel failed: $e');
+    }
+  }
+
   Future<void> updateMonthSummary(Money income, Money expense) async {
     if (!PlatformFeatures.homeWidgets) return;
     try {

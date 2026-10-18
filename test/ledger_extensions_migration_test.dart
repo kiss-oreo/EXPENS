@@ -39,6 +39,35 @@ void main() {
     await reopened.close();
   });
 
+  test('schema 80 reopens to 81 without dropping a transaction', () async {
+    final file = File('${temp.path}/ledger81.sqlite');
+    final db = AppDatabase(NativeDatabase(file));
+    final cash = (await db.watchAccounts().first).single.id;
+    final id = await db.addTransaction(
+      type: TxType.expense,
+      amount: const Money(2500),
+      accountId: cash,
+      date: DateTime(2026, 10, 3),
+      note: 'kept-81',
+    );
+    await db.customStatement('PRAGMA user_version = 80');
+    await db.close();
+
+    final reopened = AppDatabase(NativeDatabase(file));
+    final version = await reopened.customSelect('PRAGMA user_version').get();
+    expect(version.single.read<int>('user_version'), 81);
+    final rows = await reopened.select(reopened.transactions).get();
+    expect(rows.single.id, id);
+    expect(rows.single.note, 'kept-81');
+    final extras = await reopened
+        .customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'tx_extras'",
+        )
+        .get();
+    expect(extras, isNotEmpty);
+    await reopened.close();
+  });
+
   test('net worth is the sum of balance-holding accounts', () async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);

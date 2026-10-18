@@ -18,6 +18,14 @@
         android:textColor="@color/widget_text_secondary" />
 
     <TextView
+        android:id="@+id/widget_capture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="11sp"
+        android:textColor="@color/widget_text_secondary"
+        tools:text="Capture paused" />
+
+    <TextView
         android:id="@+id/widget_balance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -10,6 +10,7 @@ import '../../features/accounts/account_detail_screen.dart';
 import '../../features/accounts/accounts_screen.dart';
 import '../../features/accounts/archived_accounts_screen.dart';
 import '../../features/add_transaction/add_transaction_screen.dart';
+import '../../features/add_transaction/quick_add_screen.dart';
 import '../../features/auto/archived_auto_rules_screen.dart';
 import '../../features/auto/auto_rule_detail_screen.dart';
 import '../../features/auto/auto_screen.dart';
@@ -28,6 +29,7 @@ import '../../features/data_export/download_data_screen.dart';
 import '../../features/merchants/merge_merchants_screen.dart';
 import '../../features/merchants/merchants_screen.dart';
 import '../../features/message_capture/capture_category_screen.dart';
+import '../../features/message_capture/needs_review_screen.dart';
 import '../../features/message_capture/ignored_payments_screen.dart';
 import '../../features/message_capture/message_capture_screen.dart';
 import '../../features/message_capture/parser_test_screen.dart';
@@ -36,6 +38,8 @@ import '../../features/message_capture/ocr_feedback/ocr_correction_capture_scree
 import '../../features/message_capture/ocr_feedback/ocr_correction_screen.dart';
 import '../../features/message_capture/review_inbox_screen.dart';
 import '../../features/more/more_screen.dart';
+import '../../features/statement_import/statement_preview_screen.dart';
+import '../../features/subscriptions/subscription_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/payees/payee_detail_screen.dart';
 import '../../features/payees/payees_screen.dart';
@@ -322,6 +326,11 @@ final appRouter = GoRouter(
                       builder: (_, _) => const IgnoredPaymentsScreen(),
                     ),
                     GoRoute(
+                      path: 'review',
+                      parentNavigatorKey: _rootKey,
+                      builder: (_, _) => const NeedsReviewScreen(),
+                    ),
+                    GoRoute(
                       path: 'permission',
                       parentNavigatorKey: _rootKey,
                       builder: (_, _) => const SmsPermissionScreen(),
@@ -352,6 +361,26 @@ final appRouter = GoRouter(
                       ],
                     ),
                   ],
+                ),
+                GoRoute(
+                  path: 'import-statement',
+                  parentNavigatorKey: _rootKey,
+                  builder: (_, _) => const StatementPreviewScreen(),
+                ),
+                GoRoute(
+                  path: 'quick-add',
+                  parentNavigatorKey: _rootKey,
+                  builder: (_, _) => const QuickAddScreen(),
+                ),
+                GoRoute(
+                  path: 'needs-review',
+                  parentNavigatorKey: _rootKey,
+                  builder: (_, _) => const NeedsReviewScreen(),
+                ),
+                GoRoute(
+                  path: 'subscriptions',
+                  parentNavigatorKey: _rootKey,
+                  builder: (_, _) => const SubscriptionsScreen(),
                 ),
                 GoRoute(
                   path: 'merchants',

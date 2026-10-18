@@ -151,6 +151,12 @@ class MoreScreen extends ConsumerWidget {
           route: '/more/backup',
           subtitle: 'Back up, import & move to a new phone',
         ),
+        _Item(
+          Icons.picture_as_pdf_outlined,
+          'Import statement',
+          route: '/more/import-statement',
+          subtitle: 'Google Pay or PhonePe PDF, on this device',
+        ),
       ]),
       _Group('Setup', [
         _Item(
@@ -164,6 +170,24 @@ class MoreScreen extends ConsumerWidget {
           'Merchants',
           route: '/more/merchants',
           subtitle: 'Aliases, merge, and category rules',
+        ),
+        _Item(
+          Icons.bolt_outlined,
+          'Quick add',
+          route: '/more/quick-add',
+          subtitle: 'Amount, merchant, save',
+        ),
+        _Item(
+          Icons.rate_review_outlined,
+          'Needs review',
+          route: '/more/needs-review',
+          subtitle: 'Unassigned or uncategorised payments',
+        ),
+        _Item(
+          Icons.event_repeat_outlined,
+          'Subscriptions',
+          route: '/more/subscriptions',
+          subtitle: 'Reminders only — nothing is added',
         ),
         _Item(
           Icons.sell_outlined,

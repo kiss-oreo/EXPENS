@@ -8,6 +8,24 @@ Release process: see [docs/RELEASING.md](docs/RELEASING.md).
 
 ## [Unreleased]
 
+## [1.8.0] — 2026-10-18
+
+### Added
+- On-device Google Pay and PhonePe PDF import. The system file picker is used, so no storage permission is requested. Failed and pending rows are skipped. A checkbox preview marks rows already in the ledger. Dedupe is UPI reference, then amount + date + payee. A duplicate merges a richer payee or a missing reference into the existing row instead of adding a second one. New rows are `source = IMPORT_PDF` and run merchant aliases and category rules.
+- Capture health: a dashboard banner, and a notification when notifications are on, if SMS permission is revoked or capture is paused. The balance widget can show “Capture paused”.
+- Quick add: amount first, merchant suggestions, then save. More → Quick add.
+- Needs review for unassigned or uncategorised SMS payments, and any row already flagged.
+- Subscription reminders. Three similar payments on a weekly, monthly, or yearly gap show a next expected date. Nothing is created automatically.
+- Each registered bank parser now has at least three payment samples in `samples/sms_samples.txt`.
+
+### Changed
+- Schema 81 re-runs the idempotent side-table step. No columns or rows are dropped.
+
+### Limitations
+- Statement import reads text PDFs in the layouts under `samples/`. A scanned, image-only PDF is not read. A real export whose line breaks differ from those samples may not import until a sample of that file is added.
+- The capture notification follows the existing notifications switch. The dashboard banner does not.
+- The widget label updates only while the app is open.
+
 ## [1.7.0] — 2026-10-17
 
 Fork of XPENC 1.6.4. The MIT license and Yash Patil's copyright are unchanged.

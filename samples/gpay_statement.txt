@@ -1,0 +1,22 @@
+# Synthetic Google Pay transaction statement. Written for this app from the
+# public three-line layout (date and payee and amount, then time and UPI
+# transaction id, then the bank line). Not copied from another project.
+# Rs is used so a Latin-1 PDF round-trips. The parser also accepts the rupee sign.
+
+Google Pay
+Transaction statement
+12 Oct 2026 Paid to Swiggy Rs 250.50
+14:30 UPI Transaction ID 123456789012
+Paid from HDFC Bank XX1234
+12 Oct 2026 Received from Rahul Rs 1,500.00
+18:05 UPI Transaction ID 998877665544
+Received in HDFC Bank XX1234
+13 Oct 2026 Paid to Metro Rs 60.00
+09:12 UPI Transaction ID 112233445566
+Failed
+13 Oct 2026 Paid to Cafe Rs 40.00
+11:00 UPI Transaction ID 223344556677
+Pending
+14 Oct 2026 Paid to Dmart Rs 33.00
+20:15 UPI Transaction ID 334455667788
+Paid from HDFC Bank XX1234

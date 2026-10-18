@@ -35,6 +35,10 @@ class BalanceWidgetProvider : HomeWidgetProvider() {
                 R.id.widget_balance,
                 widgetData.getString("net_worth", null) ?: "--",
             )
+            setTextViewText(
+                R.id.widget_capture,
+                widgetData.getString("capture_label", null) ?: "",
+            )
 
             // Tapping the balance area (or the rest of the tile) just opens
             // the app where it already was.

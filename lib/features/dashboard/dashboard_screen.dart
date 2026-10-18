@@ -23,6 +23,7 @@ import '../persons/person_avatar.dart';
 import '../../core/routing/quick_actions.dart';
 import '../reports/chart_widgets.dart';
 import '../reports/stats_modules.dart';
+import 'dashboard_alerts.dart';
 import 'dashboard_layout.dart';
 import 'sparkline.dart';
 import '../../core/widgets/nav_bar_inset.dart';
@@ -69,6 +70,7 @@ class DashboardScreen extends ConsumerWidget {
         slivers: [
           const TopBarInsetSliver(),
           const SliverToBoxAdapter(child: SizedBox(height: 8)),
+          const SliverToBoxAdapter(child: DashboardAlerts()),
           SliverList.list(
             children: [
               // Keyed by widget, so a reordered section keeps its state.
